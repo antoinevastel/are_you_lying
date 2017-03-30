@@ -1,6 +1,6 @@
 function generateFingerprint(){
   return new Promise(function(resolve, reject){
-    fp = {}
+    var fp = {}
     fp.userAgent = getUserAgent();
     fp.language = getLanguage();
     fp.colorDepth = getColorDepth();
@@ -17,6 +17,25 @@ function generateFingerprint(){
     fp.plugins = getPlugins();
     fp.canvas = getCanvasFp();
     fp.adBlock = getAdBlock();
+
+    // new attributes
+    fp.appCodeName = getAppCodeName();
+    fp.oscpu = getOscpu();
+    fp.navigatorPrototype = getNavigatorPrototype();
+    // add other navigator attributes missing
+     
+    // add audio fp
+    // add webgl from cao and al paper
+    // add math constant
+    // gpu detection
+    // Web rtc
+    // ISP + bandwidth test ? http://webkay.robinlinus.com/
+    // Try a network scan ?
+    
+    // Add single emoji to detect os ?
+    // add form leakage to detect people that come again ?
+
+    generateNoNewKeywordError();
     // Since some tasks are async, maybe we should wrap all the fp generation
     // in a functionthat returns a promise
     // When the promise is fullfilled, then we return the
@@ -212,8 +231,24 @@ function generateFingerprint(){
     });
   }
 
+  // We generate an error
+  // It might bring more information than simply looking
+  // at the error prototype
  function generateNoNewKeywordError(){
-    var a = Array(16);
+   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
+   // If we wanted to detect if someone is overriding the constructor,
+   // we could try to generate random code in an eval block
+   // and we detect if that is the good lines ?
+   var error_fp = {};
+   try{
+    sddfk + djfsdf;
+   }catch(e){
+    console.log(e.message);
+    console.log(e.fileName); // FF only
+    console.log(e.description); // IE only
+    console.log(e.toSource()); // doesn't seem to work on chrome
+   }
+   console.log("thsdjfsdfk")
  }
 
 	function map(obj, iterator, context) {
