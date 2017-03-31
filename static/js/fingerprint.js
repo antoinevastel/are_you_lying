@@ -21,21 +21,40 @@ function generateFingerprint(){
     // new attributes
     fp.appCodeName = getAppCodeName();
     fp.oscpu = getOscpu();
+		fp.appName = getAppName();
+		fp.appVersion = getAppVersion();
+		fp.languages = getLanguages();
+		// Fix mimetypes
+		// fp.mimeTypes = getMimeTypes();
+		fp.product = getProduct();
+		fp.productSub = getProductSub();
+		fp.vendor = getVendor();
+		fp.vendorSub = getVendorSub();
+		// fp.touchPoints = getTouchPoints();
+		fp.buildID = getBuildId();
     fp.navigatorPrototype = getNavigatorPrototype();
     // add other navigator attributes missing
-     
+		//In cao and al they said that jpg compression algo were different accross browsers
+		//maybe try to generate simple images and compress them ?
+		//
+    //Test if access to storage is sync or async (depends on the browser)
+		//Test if getters have been overwritten (or defined at least)
     // add audio fp
     // add webgl from cao and al paper
     // add math constant
     // gpu detection
-    // Web rtc
+    // Web rtc : done, needs to be integrated in the generateFingerprint function
     // ISP + bandwidth test ? http://webkay.robinlinus.com/
     // Try a network scan ?
+		// add social media leakage
+		// add http headers (json request ?)
+		// Try to detect random agent spoofer extension ?
+		// Try to detect ghostery of things like this ?
     
     // Add single emoji to detect os ?
     // add form leakage to detect people that come again ?
 
-    generateNoNewKeywordError();
+    // generateNoNewKeywordError();
     // Since some tasks are async, maybe we should wrap all the fp generation
     // in a functionthat returns a promise
     // When the promise is fullfilled, then we return the
@@ -50,6 +69,80 @@ function generateFingerprint(){
 
       // Look at https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Promise/all
 }
+
+	function getNavigatorPrototype(){
+		var obj = window.navigator;
+		var protoNavigator = []; 
+		do Object.getOwnPropertyNames(obj).forEach(function(name) {
+			protoNavigator.push(name);	
+   	});
+		while(obj = Object.getPrototypeOf(obj));
+		return protoNavigator;
+	}
+
+	function getBuildId(){
+		if(navigator.buildID){
+			return navigator.buildID;
+		}
+		return "unknown";
+	}
+
+	function getVendor(){
+		return navigator.vendor;
+	}
+
+	function getVendorSub(){
+		return navigator.vendorSub;
+	}
+	
+	function getProduct(){
+		return navigator.product;	
+	}
+
+	function getProductSub(){
+		return navigator.productSub;
+	}
+
+	function getAppCodeName(){
+		return navigator.appCodeName;
+	}
+
+	function getAppName(){
+		return navigator.appName;
+	}
+
+	function getAppVersion(){
+		return navigator.appVersion;
+	}
+
+	function getLanguages(){
+		if(navigator.languages){
+			return navigator.languages;
+		}
+		return "unknown";
+	}
+
+	// TODO fix this so that we can't try to match it with plugins
+	function getMimeTypes(){
+		var mimeTypes = [];
+		for(var i = 0, l = navigator.mimeTypes.length; i < l; i++) {
+			mimeTypes.push(navigator.mimeTypes[i]);
+		}
+		return this.map(mimeTypes, function (p) {
+			var mimeTypes = this.map(p, function(mt){
+				return [mt.type, mt.suffixes].join("~");
+			}).join(",");
+			return [p.name, p.description, mimeTypes].join("::");
+		}, this);
+
+	}
+
+	function getOscpu(){
+		if(navigator.oscpu){
+			return navigator.oscpu;
+		}
+		return "unkwown";
+	}
 
 	function getUserAgent(){
 		return navigator.userAgent;	
@@ -226,7 +319,7 @@ function generateFingerprint(){
     image = document.getElementById("fakeimage");
     return new Promise(function(resolve, reject){
        setTimeout(function(){
-          resolve({width: image.width, height: image.height});
+          resolve([image.width, image.height]);
       }, 200);
     });
   }
@@ -250,6 +343,80 @@ function generateFingerprint(){
    }
    console.log("thsdjfsdfk")
  }
+
+	function getIPs(callback){
+		var ip_dups = {};
+		//compatibility for firefox and chrome
+		var RTCPeerConnection = window.RTCPeerConnection
+				|| window.mozRTCPeerConnection
+				|| window.webkitRTCPeerConnection;
+		var useWebKit = !!window.webkitRTCPeerConnection;
+		//bypass naive webrtc blocking using an iframe
+		if(!RTCPeerConnection){
+				//NOTE: you need to have an iframe in the page right above the script tag
+				//
+				//<iframe id="iframe" sandbox="allow-same-origin" style="display: none"></iframe>
+				//<script>...getIPs called in here...
+				//
+				var win = iframe.contentWindow;
+				RTCPeerConnection = win.RTCPeerConnection
+						|| win.mozRTCPeerConnection
+						|| win.webkitRTCPeerConnection;
+				useWebKit = !!win.webkitRTCPeerConnection;
+		}
+		//minimal requirements for data connection
+		var mediaConstraints = {
+				optional: [{RtpDataChannels: true}]
+		};
+		var servers = {iceServers: [{urls: "stun:stun.services.mozilla.com"}]};
+		//construct a new RTCPeerConnection
+		var pc = new RTCPeerConnection(servers, mediaConstraints);
+		function handleCandidate(candidate){
+				//match just the IP address
+				var ip_regex = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/
+				var ip_addr = ip_regex.exec(candidate)[1];
+				//remove duplicates
+				if(ip_dups[ip_addr] === undefined)
+						callback(ip_addr);
+				ip_dups[ip_addr] = true;
+		}
+		//listen for candidate events
+		pc.onicecandidate = function(ice){
+				//skip non-candidate events
+				if(ice.candidate)
+						handleCandidate(ice.candidate.candidate);
+		};
+		//create a bogus data channel
+		pc.createDataChannel("");
+		//create an offer sdp
+		pc.createOffer(function(result){
+				//trigger the stun server request
+				pc.setLocalDescription(result, function(){}, function(){});
+		}, function(){});
+		//wait for a while to let everything done
+		setTimeout(function(){
+				//read candidate info from local description
+				var lines = pc.localDescription.sdp.split('\n');
+				lines.forEach(function(line){
+						if(line.indexOf('a=candidate:') === 0)
+								handleCandidate(line);
+				});
+		}, 1000);
+	}
+
+//insert IP addresses into the page
+getIPs(function(ip){
+		console.log("toto : "+ip);
+		//local IPs
+		if (ip.match(/^(192\.168\.|169\.254\.|10\.|172\.(1[6-9]|2\d|3[01]))/))
+				console.log("local");
+		//IPv6 addresses
+		else if (ip.match(/^[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7}$/))
+				console.log("ipv6");
+		//assume the rest are public IPs
+		else
+				console.log("public");
+});
 
 	function map(obj, iterator, context) {
 		var results = [];
