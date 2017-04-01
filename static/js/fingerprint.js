@@ -34,6 +34,9 @@ function generateFingerprint(){
 		fp.buildID = getBuildId();
     fp.navigatorPrototype = getNavigatorPrototype();
 		fp.mathsConstants = getMathsConstants();
+
+		fp.languagesFonts = getLanguagesUsingFonts();
+
 		//In cao and al they said that jpg compression algo were different accross browsers
 		//maybe try to generate simple images and compress them ?
 		//
