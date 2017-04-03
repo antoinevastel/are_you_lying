@@ -18,22 +18,28 @@ function generateFingerprint(){
     fp.canvas = getCanvasFp();
     fp.adBlock = getAdBlock();
 
-    // new attributes
+    // New attributes
     fp.appCodeName = getAppCodeName();
     fp.oscpu = getOscpu();
 		fp.appName = getAppName();
 		fp.appVersion = getAppVersion();
 		fp.languages = getLanguages();
-		// Fix mimetypes
-		// fp.mimeTypes = getMimeTypes();
+		fp.mimeTypes = getMimeTypes();
+		fp.pluginsUsingMimeTypes = getPluginsUsingMimeTypes();
 		fp.product = getProduct();
 		fp.productSub = getProductSub();
 		fp.vendor = getVendor();
 		fp.vendorSub = getVendorSub();
-		// fp.touchPoints = getTouchPoints();
+		fp.touchSupport = getTouchSupport();
 		fp.buildID = getBuildId();
     fp.navigatorPrototype = getNavigatorPrototype();
 		fp.mathsConstants = getMathsConstants();
+
+		// TODO add more errors ?
+		// Delete the number of the line and column in the error since it might change
+		// when we add/remove features to this script
+		fp.stackOverflowDepth = generateStackOverflow();
+		fp.webSocketError = generateWebSocketError();
 
 		fp.languagesFonts = getLanguagesUsingFonts();
 		// TODO: test more, problem might happen when promise not hold !
@@ -43,27 +49,23 @@ function generateFingerprint(){
 		});
 
 
-		//In cao and al they said that jpg compression algo were different accross browsers
-		//maybe try to generate simple images and compress them ?
-		//
-    //Test if access to storage is sync or async (depends on the browser)
-		//Test if getters have been overwritten (or defined at least)
-    // Web rtc : done, needs to be integrated in the generateFingerprint function
     // ISP + bandwidth test ? http://webkay.robinlinus.com/
+		// http://webkay.robinlinus.com/scripts/speedtest.js
+		// Depends on external APIs :/
+		
     // Try a network scan ?
+		// http://webkay.robinlinus.com/scripts/network-scanner.js
+		
 		// add social media leakage
-		// add http headers (json request ?)
+		// http://webkay.robinlinus.com/scripts/social-media.js
+		
+		// add http headers (json request ?, use promises !)
+		
 		// Try to detect random agent spoofer extension ?
 		// Try to detect ghostery of things like this ?
     
     // Add single emoji to detect os ?
-    // add form leakage to detect people that come again ?
 
-    // generateNoNewKeywordError();
-    // Since some tasks are async, maybe we should wrap all the fp generation
-    // in a functionthat returns a promise
-    // When the promise is fullfilled, then we return the
-    // entire fingerprint
 		getAudio().then(function(val){
 			fp.audio = val.data;
 			return resolve(fp);
@@ -74,263 +76,313 @@ function generateFingerprint(){
       return resolve(fp);
     });
   });
-  // this.generateNoNewKeywordError();
+	// this.generateNoNewKeywordError();
 	// Look at https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Promise/all
 }
 
-	function getNavigatorPrototype(){
-		var obj = window.navigator;
-		var protoNavigator = []; 
-		do Object.getOwnPropertyNames(obj).forEach(function(name) {
-			protoNavigator.push(name);	
-   	});
-		while(obj = Object.getPrototypeOf(obj));
-		return protoNavigator;
-	}
+function getNavigatorPrototype(){
+	var obj = window.navigator;
+	var protoNavigator = []; 
+	do Object.getOwnPropertyNames(obj).forEach(function(name) {
+		protoNavigator.push(name);	
+	});
+	while(obj = Object.getPrototypeOf(obj));
+	return protoNavigator;
+}
 
-	function getBuildId(){
-		if(navigator.buildID){
-			return navigator.buildID;
+function getBuildId(){
+	if(navigator.buildID){
+		return navigator.buildID;
+	}
+	return "unknown";
+}
+
+function getVendor(){
+	return navigator.vendor;
+}
+
+function getVendorSub(){
+	return navigator.vendorSub;
+}
+
+function getTouchSupport(){
+		var maxTouchPoints = 0;
+		var touchEvent = false;
+		if(typeof navigator.maxTouchPoints !== "undefined") {
+			maxTouchPoints = navigator.maxTouchPoints;
+		} else if (typeof navigator.msMaxTouchPoints !== "undefined") {
+			maxTouchPoints = navigator.msMaxTouchPoints;
 		}
-		return "unknown";
-	}
-
-	function getVendor(){
-		return navigator.vendor;
-	}
-
-	function getVendorSub(){
-		return navigator.vendorSub;
-	}
-	
-	function getProduct(){
-		return navigator.product;	
-	}
-
-	function getProductSub(){
-		return navigator.productSub;
-	}
-
-	function getAppCodeName(){
-		return navigator.appCodeName;
-	}
-
-	function getAppName(){
-		return navigator.appName;
-	}
-
-	function getAppVersion(){
-		return navigator.appVersion;
-	}
-
-	function getLanguages(){
-		if(navigator.languages){
-			return navigator.languages;
-		}
-		return "unknown";
-	}
-
-	// TODO fix this so that we can't try to match it with plugins
-	function getMimeTypes(){
-		var mimeTypes = [];
-		for(var i = 0, l = navigator.mimeTypes.length; i < l; i++) {
-			mimeTypes.push(navigator.mimeTypes[i]);
-		}
-		return this.map(mimeTypes, function (p) {
-			var mimeTypes = this.map(p, function(mt){
-				return [mt.type, mt.suffixes].join("~");
-			}).join(",");
-			return [p.name, p.description, mimeTypes].join("::");
-		}, this);
-
-	}
-
-	function getOscpu(){
-		if(navigator.oscpu){
-			return navigator.oscpu;
-		}
-		return "unkwown";
-	}
-
-	function getUserAgent(){
-		return navigator.userAgent;	
-	}
-
-	function getLanguage(){
-		return navigator.language || navigator.userLanguage || navigator.browserLanguage || navigator.systemLanguage || "";		
-	}
-	
-	function getColorDepth(){
-		return screen.colorDepth || -1;
-	}
-	
-	function getPixelRatio(){
-		return window.devicePixelRatio || ""; 
-	}
-
-	function getScreenResolution(){
-		return [screen.width, screen.height];
-	}
-
-  function getAvailableScreenResolution(){
-		if(screen.availWidth && screen.availHeight) {
-			return [screen.availHeight, screen.availWidth];
-		}
-		return -1;
-	}
-
-	function getTimezone(){
-		return new Date().getTimezoneOffset();
-	}
-
-	function getSessionStorage(){
 		try {
-        return !!window.sessionStorage;
-      } catch(e) {
-        return true; // SecurityError when referencing it means it exists
-      }
+			document.createEvent("TouchEvent");
+			touchEvent = true;
+		} catch(_) { /* squelch */ }
+		var touchStart = "ontouchstart" in window;
+		return [maxTouchPoints, touchEvent, touchStart];
 	}
-
-	function getIndexedDb(){
-		try {
-        return !!window.indexedDB;
-      } catch(e) {
-        return true; // SecurityError when referencing it means it exists
-      }
-	}
-
-	function getHardwareConcurrency(){
-		if(navigator.hardwareConcurrency){
-    	return navigator.hardwareConcurrency;
-    }
-    return "unknown";
-	}
-
-	function getNavigatorCpuClass(){
-		if(navigator.cpuClass){
-    	return navigator.cpuClass;
-    }
-		return "unknown";
-	}
-
-	function getNavigatorPlatform(){
-		if(navigator.platform) {
-    	return navigator.platform;
-    }
-		return "unknown";
-	}
-
-	function getDoNotTrack() {
-  	if(navigator.doNotTrack) {
-    	return navigator.doNotTrack;
-    } else if (navigator.msDoNotTrack) {
-    	return navigator.msDoNotTrack;
-    } else if (window.doNotTrack) {
-    	return window.doNotTrack;
-   	}
-		return "unknown";
-	}
-
-	function getCanvasFp() {
-		var result = [];
-		// Very simple now, need to make it more complex (geo shapes etc)
-		var canvas = document.createElement("canvas");
-		canvas.width = 2000;
-		canvas.height = 200;
-		canvas.style.display = "inline";
-		var ctx = canvas.getContext("2d");
-		// detect browser support of canvas winding
-		// http://blogs.adobe.com/webplatform/2013/01/30/winding-rules-in-canvas/
-		// https://github.com/Modernizr/Modernizr/blob/master/feature-detects/canvas/winding.js
-		ctx.rect(0, 0, 10, 10);
-		ctx.rect(2, 2, 6, 6);
-		result.push("canvas winding:" + ((ctx.isPointInPath(5, 5, "evenodd") === false) ? "yes" : "no"));
-
-		ctx.textBaseline = "alphabetic";
-		ctx.fillStyle = "#f60";
-		ctx.fillRect(125, 1, 62, 20);
-		ctx.fillStyle = "#069";
-		// https://github.com/Valve/fingerprintjs2/issues/66
-		ctx.font = "11pt no-real-font-123";
-		ctx.fillText("Cwm fjordbank glyphs vext quiz, \ud83d\ude03", 2, 15);
-		ctx.fillStyle = "rgba(102, 204, 0, 0.2)";
-		ctx.font = "18pt Arial";
-		ctx.fillText("Cwm fjordbank glyphs vext quiz, \ud83d\ude03", 4, 45);
-
-		// canvas blending
-		// http://blogs.adobe.com/webplatform/2013/01/28/blending-features-in-canvas/
-		// http://jsfiddle.net/NDYV8/16/
-		ctx.globalCompositeOperation = "multiply";
-		ctx.fillStyle = "rgb(255,0,255)";
-		ctx.beginPath();
-		ctx.arc(50, 50, 50, 0, Math.PI * 2, true);
-		ctx.closePath();
-		ctx.fill();
-		ctx.fillStyle = "rgb(0,255,255)";
-		ctx.beginPath();
-		ctx.arc(100, 50, 50, 0, Math.PI * 2, true);
-		ctx.closePath();
-		ctx.fill();
-		ctx.fillStyle = "rgb(255,255,0)";
-		ctx.beginPath();
-		ctx.arc(75, 100, 50, 0, Math.PI * 2, true);
-		ctx.closePath();
-		ctx.fill();
-		ctx.fillStyle = "rgb(255,0,255)";
-		// canvas winding
-		// http://blogs.adobe.com/webplatform/2013/01/30/winding-rules-in-canvas/
-		// http://jsfiddle.net/NDYV8/19/
-		ctx.arc(75, 75, 75, 0, Math.PI * 2, true);
-		ctx.arc(75, 75, 25, 0, Math.PI * 2, true);
-		ctx.fill("evenodd");
-
-		return canvas.toDataURL();
-  }
 	
-	function getAdBlock(){
-		var ads = document.createElement("div");
-		ads.innerHTML = "&nbsp;";
-		ads.className = "adsbox";
-		var result = false;
-		try {
-			// body may not exist, that's why we need try/catch
-			document.body.appendChild(ads);
-			result = document.getElementsByClassName("adsbox")[0].offsetHeight === 0;
-			document.body.removeChild(ads);
-		} catch (e) {
-			result = false;
-		}
-		return result;
-  }
+function getProduct(){
+	return navigator.product;	
+}
 
-	// Works only for non ie browsers
-  // Therefore, if it works on an IE browser, it means that its a fake IE
-	function getPlugins(){
-		var plugins = [];
-		for(var i = 0, l = navigator.plugins.length; i < l; i++) {
-			plugins.push(navigator.plugins[i]);
+function getProductSub(){
+	return navigator.productSub;
+}
+
+function getAppCodeName(){
+	return navigator.appCodeName;
+}
+
+function getAppName(){
+	return navigator.appName;
+}
+
+function getAppVersion(){
+	return navigator.appVersion;
+}
+
+function getLanguages(){
+	if(navigator.languages){
+		return navigator.languages;
+	}
+	return "unknown";
+}
+
+// TODO fix this so that we can't try to match it with plugins
+function getMimeTypes(){
+	var mimeTypes = [];
+	for(var i = 0; i < navigator.mimeTypes.length; i++){
+		var mt = navigator.mimeTypes[i];
+		mimeTypes.push([mt.description, mt.type, mt.suffixes].join("~"));
+	}
+	return mimeTypes;
+}
+
+function getPluginsUsingMimeTypes(){
+	var plugins = [];
+	for(var i = 0; i < navigator.mimeTypes.length; i++){
+		var mt = navigator.mimeTypes[i];
+		plugins.push([mt.enabledPlugin.name, mt.enabledPlugin.description, mt.enabledPlugin.filename].join("::")+mt.type);
+	}
+	return plugins;
+}
+
+
+function generateStackOverflow(){
+	var depth = 0;
+	
+	function inc(){
+		try{
+			depth++;
+			inc();
+		}catch(e){
+			return depth;
 		}
-		return this.map(plugins, function (p) {
-			var mimeTypes = this.map(p, function(mt){
-				return [mt.type, mt.suffixes].join("~");
-			}).join(",");
-			return [p.name, p.description, mimeTypes].join("::");
-		}, this);
 	}
 
-  function generateUnknownImageError(){
-    var body = document.getElementsByTagName("body")[0];
-    var image = document.createElement("img");
-    image.src = "http://iloveponeydotcom32188.jg";
-    image.setAttribute("id", "fakeimage");
-    body.appendChild(image);
-    image = document.getElementById("fakeimage");
-    return new Promise(function(resolve, reject){
-       setTimeout(function(){
-          resolve([image.width, image.height]);
-      }, 200);
-    });
-  }
+	inc();
+	return depth;
+}
+
+
+function generateWebSocketError(){
+	var error = "";
+	try{
+		var a = new WebSocket("itsgonnafail");
+	}catch(e){
+		error += e.toString();
+		console.log(error);
+	}
+	return error;
+}
+
+function getOscpu(){
+	if(navigator.oscpu){
+		return navigator.oscpu;
+	}
+	return "unkwown";
+}
+
+function getUserAgent(){
+	return navigator.userAgent;	
+}
+
+function getLanguage(){
+	return navigator.language || navigator.userLanguage || navigator.browserLanguage || navigator.systemLanguage || "";		
+}
+
+function getColorDepth(){
+	return screen.colorDepth || -1;
+}
+
+function getPixelRatio(){
+	return window.devicePixelRatio || ""; 
+}
+
+function getScreenResolution(){
+	return [screen.width, screen.height];
+}
+
+function getAvailableScreenResolution(){
+	if(screen.availWidth && screen.availHeight) {
+		return [screen.availWidth, screen.availHeight];
+	}
+	return -1;
+}
+
+function getTimezone(){
+	return new Date().getTimezoneOffset();
+}
+
+function getSessionStorage(){
+	try {
+			return !!window.sessionStorage;
+		} catch(e) {
+			return true; // SecurityError when referencing it means it exists
+		}
+}
+
+function getIndexedDb(){
+	try {
+			return !!window.indexedDB;
+		} catch(e) {
+			return true; // SecurityError when referencing it means it exists
+		}
+}
+
+function getHardwareConcurrency(){
+	if(navigator.hardwareConcurrency){
+		return navigator.hardwareConcurrency;
+	}
+	return "unknown";
+}
+
+function getNavigatorCpuClass(){
+	if(navigator.cpuClass){
+		return navigator.cpuClass;
+	}
+	return "unknown";
+}
+
+function getNavigatorPlatform(){
+	if(navigator.platform) {
+		return navigator.platform;
+	}
+	return "unknown";
+}
+
+function getDoNotTrack() {
+	if(navigator.doNotTrack) {
+		return navigator.doNotTrack;
+	} else if (navigator.msDoNotTrack) {
+		return navigator.msDoNotTrack;
+	} else if (window.doNotTrack) {
+		return window.doNotTrack;
+	}
+	return "unknown";
+}
+
+
+function getCanvasFp() {
+	var result = [];
+	// Very simple now, need to make it more complex (geo shapes etc)
+	var canvas = document.createElement("canvas");
+	canvas.width = 2000;
+	canvas.height = 200;
+	canvas.style.display = "inline";
+	var ctx = canvas.getContext("2d");
+	// detect browser support of canvas winding
+	// http://blogs.adobe.com/webplatform/2013/01/30/winding-rules-in-canvas/
+	// https://github.com/Modernizr/Modernizr/blob/master/feature-detects/canvas/winding.js
+	ctx.rect(0, 0, 10, 10);
+	ctx.rect(2, 2, 6, 6);
+	result.push("canvas winding:" + ((ctx.isPointInPath(5, 5, "evenodd") === false) ? "yes" : "no"));
+
+	ctx.textBaseline = "alphabetic";
+	ctx.fillStyle = "#f60";
+	ctx.fillRect(125, 1, 62, 20);
+	ctx.fillStyle = "#069";
+	// https://github.com/Valve/fingerprintjs2/issues/66
+	ctx.font = "11pt no-real-font-123";
+	ctx.fillText("Cwm fjordbank glyphs vext quiz, \ud83d\ude03", 2, 15);
+	ctx.fillStyle = "rgba(102, 204, 0, 0.2)";
+	ctx.font = "18pt Arial";
+	ctx.fillText("Cwm fjordbank glyphs vext quiz, \ud83d\ude03", 4, 45);
+
+	// canvas blending
+	// http://blogs.adobe.com/webplatform/2013/01/28/blending-features-in-canvas/
+	// http://jsfiddle.net/NDYV8/16/
+	ctx.globalCompositeOperation = "multiply";
+	ctx.fillStyle = "rgb(255,0,255)";
+	ctx.beginPath();
+	ctx.arc(50, 50, 50, 0, Math.PI * 2, true);
+	ctx.closePath();
+	ctx.fill();
+	ctx.fillStyle = "rgb(0,255,255)";
+	ctx.beginPath();
+	ctx.arc(100, 50, 50, 0, Math.PI * 2, true);
+	ctx.closePath();
+	ctx.fill();
+	ctx.fillStyle = "rgb(255,255,0)";
+	ctx.beginPath();
+	ctx.arc(75, 100, 50, 0, Math.PI * 2, true);
+	ctx.closePath();
+	ctx.fill();
+	ctx.fillStyle = "rgb(255,0,255)";
+	// canvas winding
+	// http://blogs.adobe.com/webplatform/2013/01/30/winding-rules-in-canvas/
+	// http://jsfiddle.net/NDYV8/19/
+	ctx.arc(75, 75, 75, 0, Math.PI * 2, true);
+	ctx.arc(75, 75, 25, 0, Math.PI * 2, true);
+	ctx.fill("evenodd");
+
+	return canvas.toDataURL();
+}
+
+function getAdBlock(){
+	var ads = document.createElement("div");
+	ads.innerHTML = "&nbsp;";
+	ads.className = "adsbox";
+	var result = false;
+	try {
+		// body may not exist, that's why we need try/catch
+		document.body.appendChild(ads);
+		result = document.getElementsByClassName("adsbox")[0].offsetHeight === 0;
+		document.body.removeChild(ads);
+	} catch (e) {
+		result = false;
+	}
+	return result;
+}
+
+// Works only for non ie browsers
+// Therefore, if it works on an IE browser, it means that its a fake IE
+function getPlugins(){
+	var plugins = [];
+	for(var i = 0, l = navigator.plugins.length; i < l; i++) {
+		plugins.push(navigator.plugins[i]);
+	}
+	return this.map(plugins, function (p) {
+		var mimeTypes = this.map(p, function(mt){
+			return [mt.type, mt.suffixes].join("~");
+		}).join(",");
+		return [p.name, p.description, p.filename, mimeTypes].join("::");
+	}, this);
+}
+
+function generateUnknownImageError(){
+	var body = document.getElementsByTagName("body")[0];
+	var image = document.createElement("img");
+	image.src = "http://iloveponeydotcom32188.jg";
+	image.setAttribute("id", "fakeimage");
+	body.appendChild(image);
+	image = document.getElementById("fakeimage");
+	return new Promise(function(resolve, reject){
+		 setTimeout(function(){
+				resolve([image.width, image.height]);
+		}, 200);
+	});
+}
 
   // We generate an error
   // It might bring more information than simply looking
@@ -359,19 +411,6 @@ function getIPs(callback){
 			|| window.mozRTCPeerConnection
 			|| window.webkitRTCPeerConnection;
 	var useWebKit = !!window.webkitRTCPeerConnection;
-	//bypass naive webrtc blocking using an iframe
-	if(!RTCPeerConnection){
-			//NOTE: you need to have an iframe in the page right above the script tag
-			//
-			//<iframe id="iframe" sandbox="allow-same-origin" style="display: none"></iframe>
-			//<script>...getIPs called in here...
-			//
-			var win = iframe.contentWindow;
-			RTCPeerConnection = win.RTCPeerConnection
-					|| win.mozRTCPeerConnection
-					|| win.webkitRTCPeerConnection;
-			useWebKit = !!win.webkitRTCPeerConnection;
-	}
 	//minimal requirements for data connection
 	var mediaConstraints = {
 			optional: [{RtpDataChannels: true}]
@@ -660,36 +699,36 @@ function getAudio() {
 
 
 
-	function map(obj, iterator, context) {
-		var results = [];
-		// Not using strict equality so that this acts as a
-		// shortcut to checking for `null` and `undefined`.
-		if (obj == null) { return results; }
-		if (this.nativeMap && obj.map === this.nativeMap) { return obj.map(iterator, context); }
-		this.each(obj, function(value, index, list) {
-			results[results.length] = iterator.call(context, value, index, list);
-		});
-		return results;
-	}
+function map(obj, iterator, context) {
+	var results = [];
+	// Not using strict equality so that this acts as a
+	// shortcut to checking for `null` and `undefined`.
+	if (obj == null) { return results; }
+	if (this.nativeMap && obj.map === this.nativeMap) { return obj.map(iterator, context); }
+	this.each(obj, function(value, index, list) {
+		results[results.length] = iterator.call(context, value, index, list);
+	});
+	return results;
+}
 
-	function each(obj, iterator, context) {
-		if (obj === null) {
-			return;
+function each(obj, iterator, context) {
+	if (obj === null) {
+		return;
+	}
+	if (this.nativeForEach && obj.forEach === this.nativeForEach) {
+		obj.forEach(iterator, context);
+	} else if (obj.length === +obj.length) {
+		for (var i = 0, l = obj.length; i < l; i++) {
+			if (iterator.call(context, obj[i], i, obj) === {}) { return; }
 		}
-		if (this.nativeForEach && obj.forEach === this.nativeForEach) {
-			obj.forEach(iterator, context);
-		} else if (obj.length === +obj.length) {
-			for (var i = 0, l = obj.length; i < l; i++) {
-				if (iterator.call(context, obj[i], i, obj) === {}) { return; }
-			}
-		} else {
-			for (var key in obj) {
-				if (obj.hasOwnProperty(key)) {
-					if (iterator.call(context, obj[key], key, obj) === {}) { return; }
-				}
+	} else {
+		for (var key in obj) {
+			if (obj.hasOwnProperty(key)) {
+				if (iterator.call(context, obj[key], key, obj) === {}) { return; }
 			}
 		}
 	}
+}
 
 generateFingerprint().then(function(val){
     console.log(val);
