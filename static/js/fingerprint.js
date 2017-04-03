@@ -1,96 +1,96 @@
 function generateFingerprint(){
-  return new Promise(function(resolve, reject){
     var fp = {}
-    fp.userAgent = getUserAgent();
-    fp.language = getLanguage();
-    fp.colorDepth = getColorDepth();
-    fp.pixelRatio = getPixelRatio();
-    fp.hardwareConcurrency = getHardwareConcurrency();
-    fp.screenResolution = getScreenResolution();
-    fp.availableScreenResolution = getAvailableScreenResolution();
-    fp.timezone = getTimezone();
-    fp.sessionStorage = getSessionStorage();
-    fp.indexedDb = getIndexedDb();
-    fp.cpuClass = getNavigatorCpuClass();
-    fp.platform = getNavigatorPlatform();
-    fp.doNotTrack = getDoNotTrack();
-    fp.plugins = getPlugins();
-    fp.canvas = getCanvasFp();
-    fp.adBlock = getAdBlock();
+    return new Promise(function(resolve, reject){
+      fp.userAgent = getUserAgent();
+      fp.language = getLanguage();
+      fp.colorDepth = getColorDepth();
+      fp.pixelRatio = getPixelRatio();
+      fp.hardwareConcurrency = getHardwareConcurrency();
+      fp.screenResolution = getScreenResolution();
+      fp.availableScreenResolution = getAvailableScreenResolution();
+      fp.timezone = getTimezone();
+      fp.sessionStorage = getSessionStorage();
+      fp.indexedDb = getIndexedDb();
+      fp.cpuClass = getNavigatorCpuClass();
+      fp.platform = getNavigatorPlatform();
+      fp.doNotTrack = getDoNotTrack();
+      fp.plugins = getPlugins();
+      fp.canvas = getCanvasFp();
+      fp.adBlock = getAdBlock();
 
-    // New attributes
-    fp.appCodeName = getAppCodeName();
-    fp.oscpu = getOscpu();
-		fp.appName = getAppName();
-		fp.appVersion = getAppVersion();
-		fp.languages = getLanguages();
-		fp.mimeTypes = getMimeTypes();
-		fp.pluginsUsingMimeTypes = getPluginsUsingMimeTypes();
-		fp.product = getProduct();
-		fp.productSub = getProductSub();
-		fp.vendor = getVendor();
-		fp.vendorSub = getVendorSub();
-		fp.touchSupport = getTouchSupport();
-		fp.buildID = getBuildId();
-    fp.navigatorPrototype = getNavigatorPrototype();
-		fp.mathsConstants = getMathsConstants();
+      // New attributes
+      fp.appCodeName = getAppCodeName();
+      fp.oscpu = getOscpu();
+      fp.appName = getAppName();
+      fp.appVersion = getAppVersion();
+      fp.languages = getLanguages();
+      fp.mimeTypes = getMimeTypes();
+      fp.pluginsUsingMimeTypes = getPluginsUsingMimeTypes();
+      fp.product = getProduct();
+      fp.productSub = getProductSub();
+      fp.vendor = getVendor();
+      fp.vendorSub = getVendorSub();
+      fp.touchSupport = getTouchSupport();
+      fp.buildID = getBuildId();
+      fp.navigatorPrototype = getNavigatorPrototype();
+      fp.mathsConstants = getMathsConstants();
 
-		// TODO add more errors ?
-		// Delete the number of the line and column in the error since it might change
-		// when we add/remove features to this script
-		fp.stackOverflowDepth = generateStackOverflow();
-		fp.webSocketError = generateWebSocketError();
+      // TODO add more errors ?
+      // Delete the number of the line and column in the error since it might change
+      // when we add/remove features to this script
+      fp.stackOverflowDepth = generateStackOverflow();
+      fp.webSocketError = generateWebSocketError();
 
-		fp.languagesFonts = getLanguagesUsingFonts();
-		// TODO: test more, problem might happen when promise not hold !
-		var p1 = new Promise(function(resolve, reject){
-      getLocalIP().then(function(val){
-        fp.localIP = val;
-        return resolve(fp);
-      });
-    });
-
-    // ISP + bandwidth test ? http://webkay.robinlinus.com/
-		// http://webkay.robinlinus.com/scripts/speedtest.js
-		// Depends on external APIs :/
-		
-    // Try a network scan ?
-		// http://webkay.robinlinus.com/scripts/network-scanner.js
-		
-		// add social media leakage
-		// http://webkay.robinlinus.com/scripts/social-media.js
-		
-		// add http headers (json request ?, use promises !)
-    
-		var p2 = new Promise(function(resolve, reject){
-		    getHTTPHeaders("http://127.0.0.1:5000/headers").then(function(val){
-          fp.httpHeaders = val;
-          return resolve(fp);
-      });
-    });
-
-		// Try to detect random agent spoofer extension ?
-		// Try to detect ghostery of things like this ?
-    
-    // Add single emoji to detect os ?
-		var p3 = new Promise(function(resolve, reject){
-		    getAudio().then(function(val){
-          fp.audio = val.data;
+      fp.languagesFonts = getLanguagesUsingFonts();
+      // TODO: test more, problem might happen when promise not hold !
+      var p1 = new Promise(function(resolve, reject){
+        getLocalIP().then(function(val){
+          fp.localIP = val;
           return resolve(fp);
         });
-    });
+      });
 
-
-		var p4 = new Promise(function(resolve, reject){
-        generateUnknownImageError().then(function(val){
-            fp.unknownImageError = val;
+      // ISP + bandwidth test ? http://webkay.robinlinus.com/
+      // http://webkay.robinlinus.com/scripts/speedtest.js
+      // Depends on external APIs :/
+      
+      // Try a network scan ?
+      // http://webkay.robinlinus.com/scripts/network-scanner.js
+      
+      // add social media leakage
+      // http://webkay.robinlinus.com/scripts/social-media.js
+      
+      // add http headers (json request ?, use promises !)
+      
+      var p2 = new Promise(function(resolve, reject){
+          getHTTPHeaders("http://127.0.0.1:5000/headers").then(function(val){
+            fp.httpHeaders = val;
             return resolve(fp);
         });
-    });
+      });
 
-    return Promise.all([p1, p2, p3, p4]).then(function () {
-				return resolve(fp);
-    });
+      // Try to detect random agent spoofer extension ?
+      // Try to detect ghostery of things like this ?
+      
+      // Add single emoji to detect os ?
+      var p3 = new Promise(function(resolve, reject){
+          getAudio().then(function(val){
+            fp.audio = val.data;
+            return resolve(fp);
+          });
+      });
+
+
+      var p4 = new Promise(function(resolve, reject){
+          generateUnknownImageError().then(function(val){
+              fp.unknownImageError = val;
+              return resolve(fp);
+          });
+      });
+
+      return Promise.all([p1, p2, p3, p4]).then(function () {
+          return resolve(fp);
+      });
 
   });
 	// this.generateNoNewKeywordError();
@@ -789,9 +789,16 @@ function each(obj, iterator, context) {
 	}
 }
 
+
+function getFingerprintInconsistencies(fp){
+    // TODO apply my best algo here ...
+    console.log("Start finding inconsistencies");
+}
+
 generateFingerprint().then(function(val){
     console.log(val.httpHeaders);
     console.log(val.localIP);
     console.log(val.audio);
     console.log(val.unknownImageError);
+    getFingerprintInconsistencies(val);
 });
