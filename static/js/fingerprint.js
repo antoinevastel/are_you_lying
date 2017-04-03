@@ -43,11 +43,12 @@ function generateFingerprint(){
 
 		fp.languagesFonts = getLanguagesUsingFonts();
 		// TODO: test more, problem might happen when promise not hold !
-		getLocalIP().then(function(val){
-			fp.localIP = val;
-			return resolve(fp);
-		});
-
+		var p1 = new Promise(function(resolve, reject){
+      getLocalIP().then(function(val){
+        fp.localIP = val;
+        return resolve(fp);
+      });
+    });
 
     // ISP + bandwidth test ? http://webkay.robinlinus.com/
 		// http://webkay.robinlinus.com/scripts/speedtest.js
@@ -60,21 +61,37 @@ function generateFingerprint(){
 		// http://webkay.robinlinus.com/scripts/social-media.js
 		
 		// add http headers (json request ?, use promises !)
-		
+    
+		var p2 = new Promise(function(resolve, reject){
+		    getHTTPHeaders("http://127.0.0.1:5000/headers").then(function(val){
+          fp.httpHeaders = val;
+          return resolve(fp);
+      });
+    });
+
 		// Try to detect random agent spoofer extension ?
 		// Try to detect ghostery of things like this ?
     
     // Add single emoji to detect os ?
-
-		getAudio().then(function(val){
-			fp.audio = val.data;
-			return resolve(fp);
-		});
-
-    generateUnknownImageError().then(function(val){
-      fp.unknownImageError = val;
-      return resolve(fp);
+		var p3 = new Promise(function(resolve, reject){
+		    getAudio().then(function(val){
+          fp.audio = val.data;
+          return resolve(fp);
+        });
     });
+
+
+		var p4 = new Promise(function(resolve, reject){
+        generateUnknownImageError().then(function(val){
+            fp.unknownImageError = val;
+            return resolve(fp);
+        });
+    });
+
+    return Promise.all([p1, p2, p3, p4]).then(function () {
+				return resolve(fp);
+    });
+
   });
 	// this.generateNoNewKeywordError();
 	// Look at https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Promise/all
@@ -191,7 +208,6 @@ function generateWebSocketError(){
 		var a = new WebSocket("itsgonnafail");
 	}catch(e){
 		error += e.toString();
-		console.log(error);
 	}
 	return error;
 }
@@ -698,6 +714,49 @@ function getAudio() {
 }
 
 
+function get(url) {
+  // Return a new promise.
+  return new Promise(function(resolve, reject) {
+    // Do the usual XHR stuff
+    var req = new XMLHttpRequest();
+    req.open('GET', url);
+
+    req.onload = function() {
+      // This is called even on 404 etc
+      // so check the status
+      if (req.status == 200) {
+        // Resolve the promise with the response text
+        resolve(req.response);
+      }
+      else {
+        // Otherwise reject with the status text
+        // which will hopefully be a meaningful error
+        reject(Error(req.statusText));
+      }
+    };
+
+    // Handle network errors
+    req.onerror = function() {
+      reject(Error("Network Error"));
+    };
+
+    // Make the request
+    req.send();
+  });
+}
+
+function getHTTPHeaders(url){
+  return new Promise(function(resolve, reject){
+    get(url).then(function(response) {
+        httpHeaders = JSON.parse(response);
+        resolve(httpHeaders)
+      }, function(error) {
+        reject(error);
+      })
+  });
+}
+
+
 
 function map(obj, iterator, context) {
 	var results = [];
@@ -731,6 +790,8 @@ function each(obj, iterator, context) {
 }
 
 generateFingerprint().then(function(val){
-    console.log(val);
+    console.log(val.httpHeaders);
+    console.log(val.localIP);
+    console.log(val.audio);
+    console.log(val.unknownImageError);
 });
-
