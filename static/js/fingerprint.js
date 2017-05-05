@@ -15,8 +15,13 @@ function generateFingerprint(){
       fp.platform = getNavigatorPlatform();
       fp.doNotTrack = getDoNotTrack();
       fp.plugins = getPlugins();
-      fp.canvas = getCanvasFp();
+      var canvasObj = getCanvasFp();
+      fp.canvas = canvasObj.url;
       fp.adBlock = getAdBlock();
+      getWebGL();
+      fp.modernizr = testModernizr();
+      fp.overwrittenObjects = testOverwrittenObjects();
+      testCanvasValue(canvasObj.data);
 
       // New attributes
       fp.appCodeName = getAppCodeName();
@@ -53,15 +58,11 @@ function generateFingerprint(){
       // ISP + bandwidth test ? http://webkay.robinlinus.com/
       // http://webkay.robinlinus.com/scripts/speedtest.js
       // Depends on external APIs :/
-      
       // Try a network scan ?
       // http://webkay.robinlinus.com/scripts/network-scanner.js
-      
       // add social media leakage
       // http://webkay.robinlinus.com/scripts/social-media.js
-      
       // add http headers (json request ?, use promises !)
-      
       var p2 = new Promise(function(resolve, reject){
           getHTTPHeaders("http://127.0.0.1:5000/headers").then(function(val){
             fp.httpHeaders = val;
@@ -69,9 +70,6 @@ function generateFingerprint(){
         });
       });
 
-      // Try to detect random agent spoofer extension ?
-      // Try to detect ghostery of things like this ?
-      
       // Add single emoji to detect os ?
       var p3 = new Promise(function(resolve, reject){
           getAudio().then(function(val){
@@ -80,7 +78,6 @@ function generateFingerprint(){
           });
       });
 
-
       var p4 = new Promise(function(resolve, reject){
           generateUnknownImageError().then(function(val){
               fp.unknownImageError = val;
@@ -88,7 +85,9 @@ function generateFingerprint(){
           });
       });
 
-      return Promise.all([p1, p2, p3, p4]).then(function () {
+      // TODO: add p1 later
+      // Problem currently if no private address
+      return Promise.all([p2, p3, p4]).then(function () {
           return resolve(fp);
       });
 
@@ -99,9 +98,9 @@ function generateFingerprint(){
 
 function getNavigatorPrototype(){
 	var obj = window.navigator;
-	var protoNavigator = []; 
+	var protoNavigator = [];
 	do Object.getOwnPropertyNames(obj).forEach(function(name) {
-		protoNavigator.push(name);	
+		protoNavigator.push(name);
 	});
 	while(obj = Object.getPrototypeOf(obj));
 	return protoNavigator;
@@ -298,61 +297,38 @@ function getDoNotTrack() {
 	return "unknown";
 }
 
+function getWebGL(){
+  canvas = document.createElement('canvas');
+  var ctx = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+  if(ctx.getSupportedExtensions().indexOf("WEBGL_debug_renderer_info") >= 0) {
+      webGLVendor = ctx.getParameter(ctx.getExtension('WEBGL_debug_renderer_info').UNMASKED_VENDOR_WEBGL);
+      webGLRenderer = ctx.getParameter(ctx.getExtension('WEBGL_debug_renderer_info').UNMASKED_RENDERER_WEBGL);
+  } else {
+      webGLVendor = "Not supported";
+      webGLRenderer = "Not supported";
+  }
+  console.log(webGLVendor);
+  console.log(webGLRenderer);
+}
 
 function getCanvasFp() {
-	var result = [];
-	// Very simple now, need to make it more complex (geo shapes etc)
-	var canvas = document.createElement("canvas");
-	canvas.width = 2000;
-	canvas.height = 200;
-	canvas.style.display = "inline";
-	var ctx = canvas.getContext("2d");
-	// detect browser support of canvas winding
-	// http://blogs.adobe.com/webplatform/2013/01/30/winding-rules-in-canvas/
-	// https://github.com/Modernizr/Modernizr/blob/master/feature-detects/canvas/winding.js
-	ctx.rect(0, 0, 10, 10);
-	ctx.rect(2, 2, 6, 6);
-	result.push("canvas winding:" + ((ctx.isPointInPath(5, 5, "evenodd") === false) ? "yes" : "no"));
+  canvas = document.createElement("canvas");
+  canvas.height = 60;
+  canvas.width = 400;
+  canvasContext = canvas.getContext("2d");
+  canvas.style.display = "inline";
+  canvasContext.textBaseline = "alphabetic";
+  canvasContext.fillStyle = "#f60";
+  canvasContext.fillRect(125, 1, 62, 20);
+  canvasContext.fillStyle = "#069";
+  canvasContext.font = "11pt no-real-font-123";
+  canvasContext.fillText("Cwm fjordbank glyphs vext quiz, \ud83d\ude03", 2, 15);
+  canvasContext.fillStyle = "rgba(102, 204, 0, 0.7)";
+  canvasContext.font = "18pt Arial";
+  canvasContext.fillText("Cwm fjordbank glyphs vext quiz, \ud83d\ude03", 4, 45);
+  canvasData = canvas.toDataURL();
 
-	ctx.textBaseline = "alphabetic";
-	ctx.fillStyle = "#f60";
-	ctx.fillRect(125, 1, 62, 20);
-	ctx.fillStyle = "#069";
-	// https://github.com/Valve/fingerprintjs2/issues/66
-	ctx.font = "11pt no-real-font-123";
-	ctx.fillText("Cwm fjordbank glyphs vext quiz, \ud83d\ude03", 2, 15);
-	ctx.fillStyle = "rgba(102, 204, 0, 0.2)";
-	ctx.font = "18pt Arial";
-	ctx.fillText("Cwm fjordbank glyphs vext quiz, \ud83d\ude03", 4, 45);
-
-	// canvas blending
-	// http://blogs.adobe.com/webplatform/2013/01/28/blending-features-in-canvas/
-	// http://jsfiddle.net/NDYV8/16/
-	ctx.globalCompositeOperation = "multiply";
-	ctx.fillStyle = "rgb(255,0,255)";
-	ctx.beginPath();
-	ctx.arc(50, 50, 50, 0, Math.PI * 2, true);
-	ctx.closePath();
-	ctx.fill();
-	ctx.fillStyle = "rgb(0,255,255)";
-	ctx.beginPath();
-	ctx.arc(100, 50, 50, 0, Math.PI * 2, true);
-	ctx.closePath();
-	ctx.fill();
-	ctx.fillStyle = "rgb(255,255,0)";
-	ctx.beginPath();
-	ctx.arc(75, 100, 50, 0, Math.PI * 2, true);
-	ctx.closePath();
-	ctx.fill();
-	ctx.fillStyle = "rgb(255,0,255)";
-	// canvas winding
-	// http://blogs.adobe.com/webplatform/2013/01/30/winding-rules-in-canvas/
-	// http://jsfiddle.net/NDYV8/19/
-	ctx.arc(75, 75, 75, 0, Math.PI * 2, true);
-	ctx.arc(75, 75, 25, 0, Math.PI * 2, true);
-	ctx.fill("evenodd");
-
-	return canvas.toDataURL();
+  return {url: canvasData, data:canvasContext.getImageData(0, 0, canvas.width, canvas.height).data};
 }
 
 function getAdBlock(){
@@ -460,6 +436,7 @@ function getIPs(callback){
 	setTimeout(function(){
 			//read candidate info from local description
 			var lines = pc.localDescription.sdp.split('\n');
+      // console.log(lines);
 			lines.forEach(function(line){
 					if(line.indexOf('a=candidate:') === 0)
 							handleCandidate(line);
@@ -756,6 +733,105 @@ function getHTTPHeaders(url){
   });
 }
 
+function testModernizr(){
+  var propertiesVec = [];
+  var modernizrProperties = Object.getOwnPropertyNames(Modernizr);
+  modernizrProperties.forEach(function(prop){
+    propertiesVec.push({property: prop, available: Modernizr[prop]});
+  });
+  return propertiesVec;
+}
+
+function testCanvasValue(imgData){
+  var r, g, b, a;
+
+  var height = 60;
+  var width = 400;
+  var binarizedImg = new Array(height + 2);
+  /* for(var i = 0; i < binarizedImg.length; i++){ */
+    // binarizedImg[i] = new Array(width + 2);
+    // break;
+  /* } */
+
+  /* for(var j = 0; j < binarizedImg[0].length; j++){ */
+    // binarizedImg[0][j] = false;
+    // binarizedImg[binarizedImg.length - 1][j] = false;
+  /* } */
+
+  /* for(var i = 0; i < binarizedImg.length; i++){ */
+    // binarizedImg[i][0] = false;
+    // binarizedImg[i][binarizedImg[0].length - 1] = false;
+  /* } */
+  console.log("test1");
+  var binValue;
+  nbZeroElts = 0;
+  var xi, yi;
+  /* for(var i = 0; i < imgData.length; i = i+4){ */
+    // r = imgData[i];
+    // g = imgData[i+1];
+    // b = imgData[i+2];
+    // a = imgData[i+3];
+    // if(r ==0 && g ==0 && b ==0 && a == 0){
+    //     binValue = false;
+    //     nbZeroElts++;
+    // } else{
+    //     binValue = true;
+    // }
+    // yi = i % (width) + 1;
+    // xi = i/width +1;
+    // binarizedImg[xi][yi] = binValue;
+  /* } */
+
+  /* for(var i = 0; i < binarizedImg.length; i++){ */
+    // for(var j = 0; j < binarizedImg[0].length; j++){
+    //   var isolated = true;
+    //   if(binarizedImg[i][j] == true){
+    //     if(i > 0)
+    //   }
+    /* } */
+  // }
+
+  console.log("There are "+nbZeroElts+" zero elements");
+}
+
+function testOverwrittenObjects(){
+    var screenTest;
+    try{
+        screenTest = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(screen), "width").get.toString();
+    } catch(e){
+        screenTest = "error";
+    }
+    var oscpuTest;
+    try{
+        oscpuTest = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(navigator), "oscpu").get.toString();
+        // Should fail if Chrome
+    } catch(e){
+        oscpuTest = "error";
+    }
+    var canvasTest;
+    try{
+        canvasTest = Object.getOwnPropertyDescriptor(window.HTMLCanvasElement.prototype, "toDataURL").value.toString();
+    } catch(e){
+        // Error may also occur if canvas is simply unavailable
+        canvasTest = "error";
+    }
+
+    var vendorTest;
+    try{
+        vendorTest = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(navigator), "vendor").get.toString();
+    } catch(e) {
+        vendorTest = "error";
+    }
+
+    var dateTest;
+    try{
+        dateTest = Object.getOwnPropertyDescriptor(Date.prototype, "getTimezoneOffset").value.toString();
+    } catch(e) {
+        dateTest = "error";
+    }
+
+    return {screenTest: screenTest, oscpuTest: oscpuTest, canvasTest: canvasTest, vendorTest: vendorTest, dateTest: dateTest};
+}
 
 
 function map(obj, iterator, context) {
@@ -790,15 +866,171 @@ function each(obj, iterator, context) {
 }
 
 
+function isPlatformOSrefConsistent(platform, osRef){
+    console.log("Test consistency of: "+platform+" and "+osRef);
+    var platformFamily;
+    if(platform.indexOf("Linux") > -1){
+        platformFamily = "Linux";
+    } else if(platform.indexOf("Windows") > -1){
+        platformFamily = "Windows";
+    } else if(platform.indexOf("Mac") > -1){
+        platformFamily = "Mac OS";
+    }
+
+    var platformFamilyToConsistentOs = {};
+    platformFamilyToConsistentOs["Linux"] = ["Linux", "Ubuntu"];
+    platformFamilyToConsistentOs["Windows"] = ["Windows"];
+    platformFamilyToConsistentOs["Mac OS"] = ["Mac OS"];
+    if(platformFamilyToConsistentOs[platformFamily].indexOf(osRef) > -1){
+        console.log("Platform and osRef are consistent");
+    } else{
+        console.log("Platform and osRef are not consistent");
+    }
+}
+
+function isPluginsOSrefConsistent(osRef, plugins){
+    console.log(plugins);
+    // also add windows phone
+    if((osRef == "Android" || osRef == "iOS") && plugins.length > 0){
+        console.log("Error: Mobile phone with plugins detected");
+    }
+
+    var forbiddenExtensions;
+    if(osRef == "Linux" || osRef == "Ubuntu"){
+        forbiddenExtensions = [".dll", ".plugin"];
+    } else if(osRef == "Mac OS"){
+        forbiddenExtensions = [".dll", ".so"];
+    } else if(osRef == "Windows"){
+        forbiddenExtensions = [".so", ".plugin"];
+    }
+
+    var found = false;
+    if(plugins.indexOf(forbiddenExtensions[0]) > -1){
+        found = true;
+    }
+    if(!found && plugins.indexOf(forbiddenExtensions[1]) > -1){
+        found = true;
+    }
+    if(found){
+        console.log("Error: plugins filename extension inconstent with osRef");
+    } else{
+        console.log("Plugins filename extension is consistent with osRef");
+    }
+}
+
+function checkOSMq(osRef, versionRef){
+    var queryMatchedColor = "red";
+    if(versionRef == undefined){
+        versionRef = " ";
+    }
+    var testMac1 = document.getElementById("testmac1");
+    var testWinXP = document.getElementById("testwinxp");
+    var testWinVis = document.getElementById("testwinvis");
+    var testWin7 = document.getElementById("testwin7");
+    var testWin8 = document.getElementById("testwin8");
+    testsFailed = [];
+
+    if(testMac1.style.color == queryMatchedColor && osRef != "Mac OS"){
+      testsFailed.push("testMac1");
+    }
+
+    if((testWinXP.style.color == queryMatchedColor && osRef+" "+versionRef != "Windows XP") ||
+        (testWinXP.style.color != queryMatchedColor && osRef+" "+versionRef == "Windows XP")){
+        testsFailed.push("testWinXp");
+    }
+
+    if((testWinVis.style.color == queryMatchedColor && osRef+" "+versionRef != "Windows Vista") ||
+        (testWinVis.style.color != queryMatchedColor && osRef+" "+versionRef == "Windows Vista")){
+        testsFailed.push("testWinVis");
+    }
+
+    if((testWin7.style.color == queryMatchedColor && osRef+" "+versionRef[0] != "Windows 7") ||
+        (testWin7.style.color != queryMatchedColor && osRef+" "+versionRef[0] == "Windows 7")){
+        testsFailed.push("testWin7");
+    }
+
+    if((testWin8.style.color == queryMatchedColor && osRef+" "+versionRef[0] != "Windows 8") ||
+        (testWin8.style.color != queryMatchedColor && osRef+" "+versionRef[0] == "Windows 8")){
+        testsFailed.push("testWin8");
+    }
+
+    console.log("tests failed");
+    console.log(testsFailed);
+}
+
+function isMissingImageConsistent(unknownImageError, browserRef){
+    // Image size depends on the level of zoom...
+    var screenCssPixelRatio = (window.outerWidth - 8) / window.innerWidth;
+    if (screenCssPixelRatio >= .46 && screenCssPixelRatio <= .54) {
+      zoomLevel = "-4";
+    } else if (screenCssPixelRatio <= .64) {
+      zoomLevel = "-3";
+    } else if (screenCssPixelRatio <= .76) {
+      zoomLevel = "-2";
+    } else if (screenCssPixelRatio <= .92) {
+      zoomLevel = "-1";
+    } else if (screenCssPixelRatio <= 1.10) {
+      zoomLevel = "0";
+    } else if (screenCssPixelRatio <= 1.32) {
+      zoomLevel = "1";
+    } else if (screenCssPixelRatio <= 1.58) {
+      zoomLevel = "2";
+    } else if (screenCssPixelRatio <= 1.90) {
+      zoomLevel = "3";
+    } else if (screenCssPixelRatio <= 2.28) {
+      zoomLevel = "4";
+    } else if (screenCssPixelRatio <= 2.70) {
+      zoomLevel = "5";
+    } else {
+      zoomLevel = "unknown";
+    }
+    console.log("Zoom level: "+zoomLevel);
+  console.log(unknownImageError[0], unknownImageError[1]);
+  console.log(unknownImageError[0]*unknownImageError[1]/screenCssPixelRatio);
+    var browserToSize = {};
+    browserToSize["Chrome"] = [20, 25];
+}
+
+function areErrorsConsistent( browserRef){
+    
+}
+
 function getFingerprintInconsistencies(fp){
     // TODO apply my best algo here ...
+    console.log(fp);
     console.log("Start finding inconsistencies");
+    var ua = fp.userAgent;
+    var parser = new UAParser();
+    // ua = "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko";
+    parser.setUA(ua);
+    var uaParsed = parser.getResult();
+    console.log(uaParsed);
+    var browserRef = uaParsed.browser.name;
+    var osRef = uaParsed.os.name;
+    var osVersionRef = uaParsed.os.version;
+    console.log("browser ref: "+browserRef);
+    console.log("os ref: "+osRef);
+    console.log("os version ref: "+osVersionRef);
+
+    // OS check
+    if(fp.userAgent == fp.httpHeaders["User-Agent"]){
+        console.log("The two user agents are the same");
+    }else{
+        console.log("The two user agents are different");
+    }
+
+    isPlatformOSrefConsistent(fp.platform, osRef);
+    isPluginsOSrefConsistent(osRef, fp.plugins);
+    checkOSMq(osRef, osVersionRef);
+    // TODO add emojis?
+    // add fonts linked to an os
+
+    // isMissingImageConsistent(fp.unknownImageError, browserRef);
+    areErrorsConsistent(browserRef);
 }
 
 generateFingerprint().then(function(val){
     console.log(val.httpHeaders);
-    console.log(val.localIP);
-    console.log(val.audio);
-    console.log(val.unknownImageError);
+    console.log(val.overwrittenObjects);
     getFingerprintInconsistencies(val);
 });

@@ -3,10 +3,44 @@
 <head>
 <title>Display browser fingerprint</title>
 </head>
-
+<style>
+    a:visited{color: red;}
+</style>
 <body>
 	Fingerprint is displayed in the console...
+    <a href="#">test lien harcode</a>
+    <div id ="refid">
+       <p>
+           Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis
+           egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec
+           eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat
+           eleifend leo.
+       </p>
+    <div>
+
+    <div id ="reflink">
+    </div>
+
+    <p id="testmac1">
+        Test 1
+    </p>
+    <p id="testwinxp">
+        Test 2
+    </p>
+    <p id="testwinvis">
+        Test 3
+    </p>
+    <p id="testwin7">
+        Test 4
+    </p>
+    <p id="testwin8">
+        Test 4
+    </p>
+
     <script src="{{ url_for('static', filename='js/audioSha1.js') }}"></script>
     <script src="{{ url_for('static', filename='js/languageDetector.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modernizr.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ua-parser.js') }}"></script>
     <script src="{{ url_for('static', filename='js/fingerprint.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/moveElements.js') }}"></script>
 </html>
