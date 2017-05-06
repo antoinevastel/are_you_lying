@@ -43,8 +43,11 @@ function generateFingerprint(){
       // TODO add more errors ?
       // Delete the number of the line and column in the error since it might change
       // when we add/remove features to this script
-      fp.stackOverflowDepth = generateStackOverflow();
+      var resOverflow = generateStackOverflow();
+      fp.stackOverflowDepth = resOverflow.depth;
+      fp.stackOverflowError = resOverflow.error;
       fp.webSocketError = generateWebSocketError();
+      fp.errorsGenerated = generateErrors();
 
       fp.languagesFonts = getLanguagesUsingFonts();
       // TODO: test more, problem might happen when promise not hold !
@@ -103,7 +106,24 @@ function getNavigatorPrototype(){
 		protoNavigator.push(name);
 	});
 	while(obj = Object.getPrototypeOf(obj));
-	return protoNavigator;
+
+  var res;
+  var finalProto = [];
+  protoNavigator.forEach(function(prop){
+    var objDesc = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(navigator), prop);
+    if(objDesc != undefined){
+      if(objDesc.value != undefined){
+          res = objDesc.value.toString();
+      }else if(objDesc.get != undefined){
+          res = objDesc.get.toString();
+      }
+    }else{
+        res = "";
+    }
+    finalProto.push({property: prop, val: res});
+
+  });
+	return finalProto;
 }
 
 function getBuildId(){
@@ -186,18 +206,20 @@ function getPluginsUsingMimeTypes(){
 
 function generateStackOverflow(){
 	var depth = 0;
-	
+  var errorMessage;
+  var errorName;
 	function inc(){
 		try{
 			depth++;
 			inc();
 		}catch(e){
-			return depth;
+      errorMessage = e.message;
+      errorName = e.name;
 		}
 	}
 
 	inc();
-	return depth;
+	return {depth: depth, error: {name: errorName, message: errorMessage}};
 }
 
 
@@ -958,6 +980,27 @@ function checkOSMq(osRef, versionRef){
     console.log(testsFailed);
 }
 
+function generateErrors(){
+    var errors = {};
+    try{
+        azeaze+3;
+    }catch(e){
+        errors["errorMessage"] = e.message;
+        errors["filename"] = e.fileName;
+        errors["lineNumber"] = e.lineNumber;
+        errors["errorDescription"] = e.description;
+        errors["errorNumber"] = e.number;
+        errors["columnNumber"] = e.columnNumber;
+        try{
+            errors["columnNumber"] = e.toSource().toString();
+        }catch(e){
+            errors["columnNumber"] = undefined;
+        }
+      }
+    console.log(errors);
+    return errors;
+}
+
 function isMissingImageConsistent(unknownImageError, browserRef){
     // Image size depends on the level of zoom...
     var screenCssPixelRatio = (window.outerWidth - 8) / window.innerWidth;
@@ -991,7 +1034,7 @@ function isMissingImageConsistent(unknownImageError, browserRef){
     browserToSize["Chrome"] = [20, 25];
 }
 
-function areErrorsConsistent( browserRef){
+function areErrorsConsistent(browserRef){
     
 }
 
