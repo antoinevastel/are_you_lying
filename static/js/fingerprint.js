@@ -22,6 +22,7 @@ function generateFingerprint(){
       fp.modernizr = testModernizr();
       fp.overwrittenObjects = testOverwrittenObjects();
       fp.canvasPixels = testCanvasValue(canvasObj.data);
+      fp.osMediaqueries = getOSMq();
 
       // New attributes
       fp.appCodeName = getAppCodeName();
@@ -764,6 +765,48 @@ function testModernizr(){
   return propertiesVec;
 }
 
+function getOSMq(){
+    var queryMatchedColor = "red";
+    var testMac1 = document.getElementById("testmac1");
+    var testWinXP = document.getElementById("testwinxp");
+    var testWinVis = document.getElementById("testwinvis");
+    var testWin7 = document.getElementById("testwin7");
+    var testWin8 = document.getElementById("testwin8");
+    var res = {};
+
+    if(testMac1.style.color == queryMatchedColor){
+        res.macTest = true;
+    }else{
+        res.macTest = false;
+    }
+
+    if(testWinXP.style.color == queryMatchedColor){
+        res.winxpTest = true;
+    }else{
+        res.winxpTest = false;
+    }
+
+    if(testWinVis.style.color == queryMatchedColor){
+        res.winvisTest = true;
+    }else{
+        res.winvisTest = false;
+    }
+
+    if(testWin7.style.color == queryMatchedColor){
+        res.win7Test = true;
+    }else{
+        res.win7test = false;
+    }
+
+    if(testWin8.style.color == queryMatchedColor){
+        res.win8Test = true;
+    }else{
+        res.win8Test = false;
+    }
+
+    return res;
+}
+
 function testCanvasValue(imgData){
   var r, g, b, a;
 
@@ -1085,15 +1128,24 @@ function getFingerprintInconsistencies(fp){
 generateFingerprint().then(function(val){
     console.log(val.httpHeaders);
     console.log(val.overwrittenObjects);
-    url = "/add_fp"
-    var xmlhttp;
-    xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function(){
-        if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
-        }
-    }
-    xmlhttp.open("POST", url, true);
-    xmlhttp.setRequestHeader("Content-type", "application/json");
-    xmlhttp.send(JSON.stringify(val));
-    getFingerprintInconsistencies(val);
+    /* <input type="text" id="countermeasure" placeholder="Countermeasure used"></input> */
+    /* <button id="validate">Send the fingeprint</button> */
+    var validateBtn = document.getElementById("validate");
+    validateBtn.addEventListener("click", function(evt){
+      var countermeasure = document.getElementById("countermeasure").value;
+
+      url = "/add_fp"
+      var xmlhttp;
+      xmlhttp = new XMLHttpRequest();
+      xmlhttp.onreadystatechange = function(){
+          if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
+          }
+      }
+      val.countermeasure = countermeasure;
+      xmlhttp.open("POST", url, true);
+      xmlhttp.setRequestHeader("Content-type", "application/json");
+      xmlhttp.send(JSON.stringify(val));
+      validateBtn.parentElement.removeChild(validateBtn);
+    });
+        getFingerprintInconsistencies(val);
 });
