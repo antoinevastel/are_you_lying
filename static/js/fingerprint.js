@@ -1085,5 +1085,15 @@ function getFingerprintInconsistencies(fp){
 generateFingerprint().then(function(val){
     console.log(val.httpHeaders);
     console.log(val.overwrittenObjects);
+    url = "/add_fp"
+    var xmlhttp;
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function(){
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
+        }
+    }
+    xmlhttp.open("POST", url, true);
+    xmlhttp.setRequestHeader("Content-type", "application/json");
+    xmlhttp.send(JSON.stringify(val));
     getFingerprintInconsistencies(val);
 });

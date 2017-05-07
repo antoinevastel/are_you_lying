@@ -1,7 +1,10 @@
 from flask import Flask, render_template, request
 from flask import jsonify
-app = Flask(__name__)
+from pymongo import MongoClient
 
+app = Flask(__name__)
+client = MongoClient()
+db = client.fpccs
 
 @app.route('/')
 def hello_world():
@@ -10,8 +13,14 @@ def hello_world():
 
 @app.route('/headers')
 def get_headers():
-    print(request.headers)
     headers = dict()
     for header in request.headers:
         headers[header[0]] = header[1]
     return jsonify(headers)
+
+
+@app.route('/add_fp', methods=["POST"])
+def add_fp():
+    # to inspect db mongod; mongo; use fpccs; db.incons.find()
+    id_inserted = db.incons.insert_one(request.get_json())
+    return "201"
