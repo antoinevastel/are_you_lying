@@ -18,7 +18,7 @@ function generateFingerprint(){
       var canvasObj = getCanvasFp();
       fp.canvas = canvasObj.url;
       fp.adBlock = getAdBlock();
-      getWebGL();
+      fp.webGLInfo = getWebGL();
       fp.modernizr = testModernizr();
       fp.overwrittenObjects = testOverwrittenObjects();
       fp.canvasPixels = testCanvasValue(canvasObj.data);
@@ -74,7 +74,6 @@ function generateFingerprint(){
         });
       });
 
-      // Add single emoji to detect os ?
       var p3 = new Promise(function(resolve, reject){
           getAudio().then(function(val){
             fp.audio = val.data;
@@ -89,9 +88,16 @@ function generateFingerprint(){
           });
       });
 
+      var p5 = new Promise(function(resolve, reject){
+        getFontsEnum().then(function(val){
+            fp.fontsEnum = val;
+            return resolve(fp);
+        })
+      });
+
       // TODO: add p1 later
       // Problem currently if no private address
-      return Promise.all([p2, p3, p4]).then(function () {
+      return Promise.all([p2, p3, p4, p5]).then(function () {
           return resolve(fp);
       });
 
@@ -330,8 +336,7 @@ function getWebGL(){
       webGLVendor = "Not supported";
       webGLRenderer = "Not supported";
   }
-  console.log(webGLVendor);
-  console.log(webGLRenderer);
+  return {vendor: webGLVendor, renderer: webGLRenderer};
 }
 
 function getCanvasFp() {
@@ -398,26 +403,6 @@ function generateUnknownImageError(){
 		}, 200);
 	});
 }
-
-  // We generate an error
-  // It might bring more information than simply looking
-  // at the error prototype
- function generateNoNewKeywordError(){
-   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error
-   // If we wanted to detect if someone is overriding the constructor,
-   // we could try to generate random code in an eval block
-   // and we detect if that is the good lines ?
-   var error_fp = {};
-   try{
-    sddfk + djfsdf;
-   }catch(e){
-    console.log(e.message);
-    console.log(e.fileName); // FF only
-    console.log(e.description); // IE only
-    console.log(e.toSource()); // doesn't seem to work on chrome
-   }
-   console.log("thsdjfsdfk")
- }
 
 function getIPs(callback){
 	var ip_dups = {};
@@ -826,7 +811,6 @@ function testCanvasValue(imgData){
     binarizedImg[i][0] = false;
     binarizedImg[i][binarizedImg[0].length - 1] = false;
   }
-  console.log("test1");
   var binValue;
   nbZeroElts = 0;
   var xi = 1, yi = 1;
@@ -867,6 +851,115 @@ function testCanvasValue(imgData){
   }
 
   return {nbZeros: nbZeroElts, isolatedCells: isolatedCells};
+}
+
+function getFontsEnum(){
+    // Code taken from fingerprintjs2
+    return new Promise(function(resolve, reject){
+      var baseFonts = ["monospace", "sans-serif", "serif"];
+      var testString = "mmmmmmmmmmlli";
+      var testSize = "72px";
+      var h = document.getElementsByTagName("body")[0];
+
+      // div to load spans for the base fonts
+      var baseFontsDiv = document.createElement("div");
+
+      // div to load spans for the fonts to detect
+      var fontsDiv = document.createElement("div");
+
+      var defaultWidth = {};
+      var defaultHeight = {};
+
+      // creates a span where the fonts will be loaded
+      var createSpan = function() {
+          var s = document.createElement("span");
+          /*
+           * We need this css as in some weird browser this
+           * span elements shows up for a microSec which creates a
+           * bad user experience
+           */
+          s.style.position = "absolute";
+          s.style.left = "-9999px";
+          s.style.fontSize = testSize;
+          s.style.lineHeight = "normal";
+          s.innerHTML = testString;
+          return s;
+      };
+
+      var createSpanWithFonts = function(fontToDetect, baseFont) {
+          var s = createSpan();
+          s.style.fontFamily = "'" + fontToDetect + "'," + baseFont;
+          return s;
+      };
+
+      var initializeBaseFontsSpans = function() {
+          var spans = [];
+          for (var index = 0, length = baseFonts.length; index < length; index++) {
+              var s = createSpan();
+              s.style.fontFamily = baseFonts[index];
+              baseFontsDiv.appendChild(s);
+              spans.push(s);
+          }
+          return spans;
+      };
+
+      var initializeFontsSpans = function() {
+          var spans = {};
+          for(var i = 0, l = fontsToTest.length; i < l; i++) {
+              var fontSpans = [];
+              for(var j = 0, numDefaultFonts = baseFonts.length; j < numDefaultFonts; j++) {
+                  var s = createSpanWithFonts(fontsToTest[i], baseFonts[j]);
+                  fontsDiv.appendChild(s);
+                  fontSpans.push(s);
+              }
+              spans[fontsToTest[i]] = fontSpans; // Stores {fontName : [spans for that font]}
+          }
+          return spans;
+      };
+
+      var isFontAvailable = function(fontSpans) {
+          var detected = false;
+          for(var i = 0; i < baseFonts.length; i++) {
+              detected = (fontSpans[i].offsetWidth !== defaultWidth[baseFonts[i]] || fontSpans[i].offsetHeight !== defaultHeight[baseFonts[i]]);
+              if(detected) {
+                  return detected;
+              }
+          }
+          return detected;
+      };
+
+      var baseFontsSpans = initializeBaseFontsSpans();
+
+      // add the spans to the DOM
+      h.appendChild(baseFontsDiv);
+
+      // get the default width for the three base fonts
+      for (var index = 0, length = baseFonts.length; index < length; index++) {
+          defaultWidth[baseFonts[index]] = baseFontsSpans[index].offsetWidth; // width for the default font
+          defaultHeight[baseFonts[index]] = baseFontsSpans[index].offsetHeight; // height for the default font
+      }
+
+      // create spans for fonts to detect
+      var fontsSpans = initializeFontsSpans();
+
+      // add all the spans to the DOM
+      h.appendChild(fontsDiv);
+
+      // check available fonts
+      var available = [];
+      for(var i = 0, l = fontsToTest.length; i < l; i++) {
+          if(isFontAvailable(fontsSpans[fontsToTest[i]])) {
+              available.push({font: fontsToTest[i], available: true});
+          }else{
+              available.push({font: fontsToTest[i], available: false});
+          }
+      }
+
+      // remove spans from DOM
+      h.removeChild(fontsDiv);
+      h.removeChild(baseFontsDiv);
+      return resolve({fonts: available});
+    });
 }
 
 function testOverwrittenObjects(){
@@ -1050,7 +1143,6 @@ function generateErrors(){
             errors["columnNumber"] = undefined;
         }
       }
-    console.log(errors);
     return errors;
 }
 
@@ -1126,8 +1218,6 @@ function getFingerprintInconsistencies(fp){
 }
 
 generateFingerprint().then(function(val){
-    console.log(val.httpHeaders);
-    console.log(val.overwrittenObjects);
     /* <input type="text" id="countermeasure" placeholder="Countermeasure used"></input> */
     /* <button id="validate">Send the fingeprint</button> */
     var validateBtn = document.getElementById("validate");
@@ -1147,5 +1237,5 @@ generateFingerprint().then(function(val){
       xmlhttp.send(JSON.stringify(val));
       validateBtn.parentElement.removeChild(validateBtn);
     });
-        getFingerprintInconsistencies(val);
+    // getFingerprintInconsistencies(val);
 });

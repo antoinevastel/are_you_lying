@@ -1,29 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Display browser fingerprint</title>
+<title>Collecter fingerprint</title>
 </head>
 <style>
     a:visited{color: red;}
 </style>
 <body>
-    <input type="text" id="countermeasure" placeholder="Countermeasure used"></input>
-    <button id="validate">Send the fingeprint</button>
+    <h1>Collecte de votre empreinte</h1>
+    <p>
+       L'objectif est de collecter l'empreinte de votre navigateur lorsque vous utilisez une
+       extension de défense contre le fingerprinting. Vous pouvez tester avec Random Agent Spoofer,
+       Canvas defender, Canvas Blocker, Ultimate User Agent, Blink.
+    </p>
+
+    <p>
+        Dans le champ ci-dessous saisissez la contre mesure que vous utilisez (Random agent spoofer,
+        canva defender, etc) et cliquez sur <b>Envoyer</b> pour envoyer votre empreinte. Ne
+        vous souciez pas de l'ortographe exacte du nom de l'extension.
+    </p>
+
+    <p>
+        Pour les personnes sous Windows ou Mac, une visite avec Internet Explorer ou Safari, même
+        sans extension serait appréciée.
+    </p>
+    <input type="text" id="countermeasure" placeholder="Contre mesure"></input>
+    <button id="validate">Envoyer</button>
     <br>
-	Fingerprint is displayed in the console...
-    <a href="#">test lien harcode</a>
-    <div id ="refid">
-       <p>
-           Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis
-           egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec
-           eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat
-           eleifend leo.
-       </p>
-    <div>
-
-    <div id ="reflink">
-    </div>
-
     <p id="testmac1">
         Test 1
     </p>
@@ -44,6 +47,7 @@
     <script src="{{ url_for('static', filename='js/languageDetector.js') }}"></script>
     <script src="{{ url_for('static', filename='js/modernizr.js') }}"></script>
     <script src="{{ url_for('static', filename='js/ua-parser.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/fonts_linked.js') }}"></script>
     <script src="{{ url_for('static', filename='js/fingerprint.js') }}"></script>
     <script src="{{ url_for('static', filename='js/moveElements.js') }}"></script>
 </html>
