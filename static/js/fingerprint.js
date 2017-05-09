@@ -1217,11 +1217,18 @@ function getFingerprintInconsistencies(fp){
 }
 
 generateFingerprint().then(function(val){
-    /* <input type="text" id="countermeasure" placeholder="Countermeasure used"></input> */
-    /* <button id="validate">Send the fingeprint</button> */
-    var validateBtn = document.getElementById("validate");
-    validateBtn.addEventListener("click", function(evt){
-      var countermeasure = document.getElementById("countermeasure").value;
+      console.log(val);
+      var validateBtn = document.getElementById("validate");
+      validateBtn.addEventListener("click", function(evt){
+
+      var countermeasureElt = document.getElementById("countermeasure-select");
+      var countermeasure = countermeasureElt.options[countermeasureElt.selectedIndex].value;
+
+      var browserElt = document.getElementById("browser-select");
+      var browser = browserElt.options[browserElt.selectedIndex].value;
+
+      var osElt = document.getElementById("os-select");
+      var os = osElt.options[osElt.selectedIndex].value;
 
       url = "/add_fp"
       var xmlhttp;
@@ -1231,6 +1238,9 @@ generateFingerprint().then(function(val){
           }
       }
       val.countermeasure = countermeasure;
+      val.realBrowser = browser;
+      val.realOS = os;
+
       xmlhttp.open("POST", url, true);
       xmlhttp.setRequestHeader("Content-type", "application/json");
       xmlhttp.send(JSON.stringify(val));

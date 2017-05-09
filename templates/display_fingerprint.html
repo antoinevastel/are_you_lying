@@ -10,22 +10,109 @@
     <h1>Collecte de votre empreinte</h1>
     <p>
        L'objectif est de collecter l'empreinte de votre navigateur lorsque vous utilisez une
-       extension de défense contre le fingerprinting. Vous pouvez tester avec Random Agent Spoofer,
-       Canvas defender, Canvas Blocker, Ultimate User Agent, Blink.
+       extension de défense contre le fingerprinting.
     </p>
 
     <p>
-        Dans le champ ci-dessous saisissez la contre mesure que vous utilisez (Random agent spoofer,
-        canva defender, etc) et cliquez sur <b>Envoyer</b> pour envoyer votre empreinte. Ne
-        vous souciez pas de l'ortographe exacte du nom de l'extension.
+        Les extensions sont disponibles aux liens suivants:
+        <ul>
+            <li>
+                <a href="https://addons.mozilla.org/fr/firefox/addon/random-agent-spoofer/">Random
+                    Agent spoofer (Firefox)</a>
+            </li>
+            <li>
+                <a href="https://addons.mozilla.org/en-US/firefox/addon/user-agent-overrider/">User
+                    agent Overrider (Firefox)</a>
+            </li>
+            <li>
+                <a
+                    href="https://chrome.google.com/webstore/detail/user-agent-switcher-for-c/djflhoibgkdhkhhcedjiklpkjnoahfmg">User
+                    agent Switcher (Chrome)</a>
+            </li>
+            <li>
+                <a href="https://multiloginapp.com/canvasdefender-browser-extension/">Canvas
+                    Defender (liens en bas, Chrome et Firefox)</a>
+            </li>
+            <li>
+                <a
+                    href="https://chrome.google.com/webstore/detail/canvasfingerprintblock/ipmjngkmngdcdpmgmiebdmfbkcecdndc">Canvas
+                    Fingerprint Block (Chrome)</a>
+            </li>
+            <li>
+                <a href="https://addons.mozilla.org/fr/firefox/addon/canvasblocker/">Canvas Blocker
+                    (Firefox)</a>
+            </li>
+        </ul>
     </p>
 
     <p>
-        Pour les personnes sous Windows ou Mac, une visite avec Internet Explorer ou Safari, même
+        Dans le formulaire ci-dessous, sélectionnez la contre mesure que vous utilisez (veuillez
+        n'en utiliser qu'une à la fois au maximum). De plus, n'hésitez pas à visiter plusieurs fois
+        la page avec la même contre mesure lorsque celle-ci permet de changer la configuration (par
+        exemple changer le profil dans Random Agent Spoofer).
+    </p>
+
+    <p>
+        Pour les personnes sous Windows, Mac OS X ou iOS, une visite avec Internet Explorer ou Safari, même
         sans extension serait appréciée.
     </p>
-    <input type="text" id="countermeasure" placeholder="Contre mesure"></input>
+
+    <h2>Attention</h2>
+    <p>
+        Pour certains extensions telles que Random Agent Spoofer, User Agent Overrider, ..., il est
+        nécessaire de cliquer sur l'icone de l'extension et de choisir le user agent que l'on
+        souhaite utiliser.
+    </p>
+
+    <!-- <input type="text" id="countermeasure" placeholder="Contre mesure"></input> -->
+    <table>
+        <tr>
+            <th>Contre mesure</th>
+            <th>Navigateur</th>
+            <th>Système d'exploitation</th>
+        </tr>
+        <tr>
+            <td>
+                <select id="countermeasure-select">
+                    <option value="nothing">Aucune</option>
+                    <option value="RAS">Random Agent Spoofer</option>
+                    <option value="uaOverrider">User Agent Overrider</option>
+                    <option value="CanvasDef">CanvasDefender</option>
+                    <option value="CanvasFpBlock">Canvas Fingerprint Block</option>
+                    <option value="CanvasBlocker">Canvas Blocker</option>
+                    <option value="Brave">Brave</option>
+                    <option value="Blink">Blink</option>
+                </select>
+            </td>
+            <td>
+                <select id="browser-select">
+                    <option value="Chrome">Chrome</option>
+                    <option value="Firefox">Firefox</option>
+                    <option value="Safari">Safari</option>
+                    <option value="IE">Internet Explorer</option>
+                    <option value="Opera">Opera</option>
+                    <option value="Brave">Brave</option>
+                    <option value="Other">Other</option>
+                </select>
+            </td>
+            <td>
+                <select id="os-select">
+                    <option value="Linux">Linux</option>
+                    <option value="MacOSX">Mac OS X</option>
+                    <option value="Windows10">Windows 10</option>
+                    <option value="Windows8">Windows 8</option>
+                    <option value="Windows7">Windows 7</option>
+                    <option value="Android">Android</option>
+                    <option value="iOS">iOS</option>
+                    <option value="other">Autre</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+    <br>
     <button id="validate">Envoyer</button>
+    <br>
+    <br>
     <br>
     <p id="testmac1">
         Test 1
