@@ -1001,7 +1001,6 @@ function testOverwrittenObjects(){
     return {screenTest: screenTest, oscpuTest: oscpuTest, canvasTest: canvasTest, vendorTest: vendorTest, dateTest: dateTest};
 }
 
-
 function map(obj, iterator, context) {
 	var results = [];
 	// Not using strict equality so that this acts as a
