@@ -68,7 +68,7 @@ function generateFingerprint(){
       // http://webkay.robinlinus.com/scripts/social-media.js
       // add http headers (json request ?, use promises !)
       var p2 = new Promise(function(resolve, reject){
-          getHTTPHeaders("http://127.0.0.1:5000/headers").then(function(val){
+          getHTTPHeaders("/headers").then(function(val){
             fp.httpHeaders = val;
             return resolve(fp);
         });
@@ -721,7 +721,7 @@ function get(url) {
     };
 
     // Handle network errors
-    req.onerror = function() {
+    req.onerror = function(e) {
       reject(Error("Network Error"));
     };
 
@@ -736,6 +736,7 @@ function getHTTPHeaders(url){
         httpHeaders = JSON.parse(response);
         resolve(httpHeaders)
       }, function(error) {
+	console.log(error);
         reject(error);
       })
   });
@@ -1235,7 +1236,9 @@ generateFingerprint().then(function(val){
       xmlhttp = new XMLHttpRequest();
       xmlhttp.onreadystatechange = function(){
           if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
-          }
+          }else {  
+           console.log("Error", xmlhttp.statusText);  
+        } 
       }
       val.countermeasure = countermeasure;
       val.realBrowser = browser;
