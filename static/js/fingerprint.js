@@ -68,7 +68,7 @@ function generateFingerprint(){
       // http://webkay.robinlinus.com/scripts/social-media.js
       // add http headers (json request ?, use promises !)
       var p2 = new Promise(function(resolve, reject){
-          getHTTPHeaders("http://127.0.0.1:5000/headers").then(function(val){
+          getHTTPHeaders("/headers").then(function(val){
             fp.httpHeaders = val;
             return resolve(fp);
         });
@@ -1217,34 +1217,71 @@ function getFingerprintInconsistencies(fp){
 }
 
 generateFingerprint().then(function(val){
-      console.log(val);
-      var validateBtn = document.getElementById("validate");
-      validateBtn.addEventListener("click", function(evt){
+		console.log(val);
+		var validateBtn = document.getElementById("validate");
 
-      var countermeasureElt = document.getElementById("countermeasure-select");
-      var countermeasure = countermeasureElt.options[countermeasureElt.selectedIndex].value;
+    function findGetParameter(parameterName) {
+			var result = null,
+					tmp = [];
+			location.search
+			.substr(1)
+					.split("&")
+					.forEach(function (item) {
+					tmp = item.split("=");
+					if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+			});
+			return result;
+		}
 
-      var browserElt = document.getElementById("browser-select");
-      var browser = browserElt.options[browserElt.selectedIndex].value;
+	osGet = findGetParameter("os");
+	if(osGet != null){
+		var browser = findGetParameter("browser");
+		var countermeasure = findGetParameter("countermeas");
+		var os = osGet;
 
-      var osElt = document.getElementById("os-select");
-      var os = osElt.options[osElt.selectedIndex].value;
+		url = "/add_fp"
+		var xmlhttp;
+		xmlhttp = new XMLHttpRequest();
+		xmlhttp.onreadystatechange = function(){
+				if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
+				}
+		}
+		val.countermeasure = countermeasure;
+		val.realBrowser = browser;
+		val.realOS = os;
+		val.automatedTest = true;
 
-      url = "/add_fp"
-      var xmlhttp;
-      xmlhttp = new XMLHttpRequest();
-      xmlhttp.onreadystatechange = function(){
-          if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
-          }
-      }
-      val.countermeasure = countermeasure;
-      val.realBrowser = browser;
-      val.realOS = os;
+		xmlhttp.open("POST", url, true);
+		xmlhttp.setRequestHeader("Content-type", "application/json");
+		xmlhttp.send(JSON.stringify(val));
 
-      xmlhttp.open("POST", url, true);
-      xmlhttp.setRequestHeader("Content-type", "application/json");
-      xmlhttp.send(JSON.stringify(val));
-      validateBtn.parentElement.removeChild(validateBtn);
-    });
-    // getFingerprintInconsistencies(val);
-});
+	}
+
+  validateBtn.addEventListener("click", function(evt){
+				var countermeasureElt = document.getElementById("countermeasure-select");
+				var countermeasure = countermeasureElt.options[countermeasureElt.selectedIndex].value;
+
+				var browserElt = document.getElementById("browser-select");
+				var browser = browserElt.options[browserElt.selectedIndex].value;
+
+				var osElt = document.getElementById("os-select");
+				var os = osElt.options[osElt.selectedIndex].value;
+
+				url = "/add_fp"
+				var xmlhttp;
+				xmlhttp = new XMLHttpRequest();
+				xmlhttp.onreadystatechange = function(){
+						if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
+						}
+				}
+				val.countermeasure = countermeasure;
+				val.realBrowser = browser;
+				val.realOS = os;
+
+				xmlhttp.open("POST", url, true);
+				xmlhttp.setRequestHeader("Content-type", "application/json");
+				xmlhttp.send(JSON.stringify(val));
+				validateBtn.parentElement.removeChild(validateBtn);
+			});
+
+		});
