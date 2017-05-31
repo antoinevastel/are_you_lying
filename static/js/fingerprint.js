@@ -721,7 +721,7 @@ function get(url) {
     };
 
     // Handle network errors
-    req.onerror = function() {
+    req.onerror = function(e) {
       reject(Error("Network Error"));
     };
 
@@ -736,6 +736,7 @@ function getHTTPHeaders(url){
         httpHeaders = JSON.parse(response);
         resolve(httpHeaders)
       }, function(error) {
+	console.log(error);
         reject(error);
       })
   });
@@ -1284,4 +1285,4 @@ generateFingerprint().then(function(val){
 				validateBtn.parentElement.removeChild(validateBtn);
 			});
 
-		});
+});
