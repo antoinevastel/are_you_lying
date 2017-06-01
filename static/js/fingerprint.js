@@ -45,7 +45,6 @@ function generateFingerprint(){
       fp.errorsGenerated = generateErrors();
 
       fp.languagesFonts = getLanguagesUsingFonts();
-      // TODO: test more, problem might happen when promise not hold !
       var p1 = new Promise(function(resolve, reject){
         getLocalIP().then(function(val){
           fp.localIP = val;
@@ -53,14 +52,6 @@ function generateFingerprint(){
         });
       });
 
-      // ISP + bandwidth test ? http://webkay.robinlinus.com/
-      // http://webkay.robinlinus.com/scripts/speedtest.js
-      // Depends on external APIs :/
-      // Try a network scan ?
-      // http://webkay.robinlinus.com/scripts/network-scanner.js
-      // add social media leakage
-      // http://webkay.robinlinus.com/scripts/social-media.js
-      // add http headers (json request ?, use promises !)
       var p2 = new Promise(function(resolve, reject){
           getHTTPHeaders("/headers").then(function(val){
             fp.httpHeaders = val;
@@ -137,7 +128,8 @@ function getNavigatorPrototype(){
 
 function getOSMq(){
     return new Promise(function(resolve, reject){
-        document.addEventListener("DOMContentLoaded", function(event){
+
+        function runMQ(){
             var divTest = document.createElement("div");
             var body = document.getElementsByTagName("body")[0];
             body.appendChild(divTest);
@@ -191,10 +183,17 @@ function getOSMq(){
             }else{
                 res.push("false");
             }
+            return res;
+      }
 
-            return resolve(res.join(";"));
+      if(document.readyState == "complete"){
+            return resolve(runMQ().join(";"));
+      } else{
+        document.addEventListener("DOMContentLoaded", function(event){
+            return resolve(runMQ().join(";"));
         });
-    });
+      }
+   });
 }
 
 
@@ -445,7 +444,7 @@ function getPlugins(){
 
 function generateUnknownImageError(){
     return new Promise(function(resolve, reject){
-        document.addEventListener("DOMContentLoaded", function(event){
+        function getError(){
             var body = document.getElementsByTagName("body")[0];
             var image = document.createElement("img");
             image.src = "http://iloveponeydotcom32188.jg";
@@ -455,7 +454,14 @@ function generateUnknownImageError(){
                 setTimeout(function(){
                         resolve([image.width, image.height].join(";"));
                 }, 500);
-            });
+        }
+        if(document.readyState == "complete"){
+              getError();
+        }else{
+          document.addEventListener("DOMContentLoaded", function(event){
+            getError();
+          });
+      }
     });
 }
 
@@ -885,111 +891,120 @@ function getFontsEnum(){
     var fontsToTest = "cursive;monospace;serif;sans-serif;fantasy;default;Arial;Arial Black;Arial Narrow;Arial Rounded MT Bold;Book Antiqua;Bookman Old Style;Bradley Hand ITC;Bodoni MT;Calibri;Century;Century Gothic;Casual;Comic Sans MS;Consolas;Copperplate Gothic Bold;Courier;Courier New;English Text MT;Felix Titling;Futura;Garamond;Geneva;Georgia;Gentium;Haettenschweiler;Helvetica;Impact;Jokerman;King;Kootenay;Latha;Liberation Serif;Lucida Console;Lalit;Lucida Grande;Magneto;Mistral;Modena;Monotype Corsiva;MV Boli;OCR A Extended;Onyx;Palatino Linotype;Papyrus;Parchment;Pericles;Playbill;Segoe Print;Shruti;Tahoma;TeX;Times;Times New Roman;Trebuchet MS;Verdana;Verona;Arial Cyr;Comic Sans MS;Arial Black;Chiller;Arial Narrow;Arial Rounded MT Bold;Baskerville Old Face;Berlin Sans FB;Blackadder ITC;Lucida Console;Symbol;Times New Roman;Webdings;Agency FB;Vijaya;Algerian;Arial Unicode MS;Bodoni MT Poster Compressed;Bookshelf Symbol 7;Calibri;Cambria;Cambria Math;Kartika;MS Mincho;MS Outlook;MT Extra;Segoe UI;Aharoni;Aparajita;Amienne;cursive;Academy Engraved LET;LCD;LuzSans-Book;sans-serif;ZWAdobeF;Eurostile;SimSun-PUA;Blackletter686 BT;Myriad Web Pro Condensed;Matisse ITC;Bell Gothic Std Black;David Transparent;Adobe Caslon Pro;AR BERKLEY;Australian Sunrise;Myriad Web Pro;Gentium Basic;Highlight LET;Adobe Myungjo Std M;GothicE;HP PSG;DejaVu Sans;Arno Pro;Futura Bk;DejaVu Sans Condensed;Euro Sign;Neurochrome;Bell Gothic Std Light;Jokerman Alts LET;Adobe Fan Heiti Std B;Baby Kruffy;Tubular;Woodcut;HGHeiseiKakugothictaiW3;YD2002;Tahoma Small Cap;Helsinki;Bickley Script;Unicorn;X-Files;GENISO;Frutiger SAIN Bd v.1;Opus;ZDingbats;ABSALOM;Vagabond;Year supply of fairy cakes;Myriad Condensed Web;Segoe Media Center;Coronet;Helsinki Metronome;Segoe Condensed;Weltron Urban;AcadEref;DecoType Naskh;Freehand521 BT;Opus Chords Sans;Enviro;SWGamekeys MT;Croobie;Arial Narrow Special G1;AVGmdBU;Candles;Futura Bk BT;Andy;QuickType;WP Arabic Sihafa;DigifaceWide;ELEGANCE;BRAZIL;Pepita MT;Nina;Geneva;OCR B MT;Futura;Blade Runner Movie Font;Allegro BT;Lucida Blackletter;AGA Arabesque;AdLib BT;Clarendon;Monotype Sorts;Alibi;Bremen Bd BT;mono;News Gothic MT;AvantGarde Bk BT;chs_boot;fantasy;Palatino;BernhardFashion BT;Courier New;CloisterBlack BT;Scriptina;Tahoma;BernhardMod BT;Virtual DJ;Nokia Smiley;Boulder;Andale Mono IPA;Belwe Lt BT;Calligrapher;Belwe Cn BT;Tanseek Pro Arabic;FuturaBlack BT;Abadi MT Condensed;Mangal;Chaucer;Belwe Bd BT;Liberation Serif;DomCasual BT;Bitstream Vera Sans;URW Gothic L;GeoSlab703 Lt BT;Bitstream Vera Sans Mono;Nimbus Mono L;Heather;Antique Olive;Clarendon Cn BT;Amazone BT;Bitstream Vera Serif;Utopia;Americana BT;Map Symbols;Bitstream Charter;Aurora Cn BT;CG Omega;Lohit Punjabi;Balloon XBd BT;Akhbar MT;Courier 10 Pitch;Benguiat Bk BT;Market;Cursor;Bodoni Bk BT;Letter Gothic;Luxi Sans;Brush455 BT;Sydnie;Lohit Hindi;Lithograph;Albertus;DejaVu LGC Serif;Lydian BT;Antique Olive Compact;KacstArt;Incised901 Bd BT;Clarendon Extended;Lohit Telugu;Incised901 Lt BT;GiovanniITCTT;KacstOneFixed;Folio XBd BT;Edda;Loma;Formal436 BT;Fine Hand;Garuda;Impress BT;RefSpecialty;Sazanami Mincho;Staccato555 BT;VL Gothic;Hkmer OS;WP BoxDrawing;Clarendon Blk BT;Droid Sans;CommonBullets;Sherwood;Helvetica;CopprplGoth Bd BT;Smudger Alts LET;BPG Rioni;CopprplGoth BT;Guitar Pro 5;Estrangelo TurAbdin;Dauphin;Arial Tur;English111 Vivace BT;Steamer;OzHandicraft BT;Futura Lt BT;Liberation Sans Narrow;Futura XBlk BT;Candy Round BTN Cond;GoudyHandtooled BT;GrilledCheese BTN Cn;GoudyOlSt BT;Galeforce BTN;Kabel Bk BT;Sneakerhead BTN Shadow;OCR-A BT;Denmark;OCR-B 10 BT;Swiss921 BT;PosterBodoni BT;Arial (Arabic);Serifa BT;FlemishScript BT;Arial;American Typewriter;Arial Black;Apple Symbols;Arial Narrow;AppleMyungjo;Arial Rounded MT Bold;Zapfino;Arial Unicode MS;BlairMdITC TT-Medium;Century Gothic;Cracked;Papyrus;KufiStandardGK;Plantagenet Cherokee;Courier;Helvetica;Baskerville Old Face;Apple Casual;Type Embellishments One LET;Bookshelf Symbol 7;Abadi MT Condensed Extra Bold;Calibri;Calibri Bold;Calisto MT;Chalkduster;Cambria;Franklin Gothic Book Italic;Century;Geneva CY;Franklin Gothic Book;Helvetica Light;Gill Sans MT;Academy Engraved LET;MT Extra;Bank Gothic;Eurostile;Bodoni SvtyTwo SC ITC TT-Book;Tekton Pro;Courier CE;Maestro;BO Futura BoldOblique;Lucida Bright Demibold;New;AGaramond;Charcoal;DIN-Black;Lucida Sans Demibold;Stone Sans OS ITC TT-Bold;AGaramond Italic;Bickham Script Pro Regular;Adobe Arabic Bold;AGaramond Semibold;Al Bayan Bold;Doremi;AGaramond SemiboldItalic;Arno Pro Bold;Casual;B Futura Bold;Frutiger 47LightCn;Gadget;HelveticaNeueLT Std Bold;Frutiger 57Cn;DejaVu Serif Italic Condensed;Myriad Pro Black It;Frutiger 67BoldCn;Gentium Basic Bold;Sand;GillSans;H Futura Heavy;Liberation Mono Bold;GillSans Bold;Cambria Math;Courier Final Draft;HelveticaNeue BlackCond;cursive;Techno;HelveticaNeue BlackCondObl;Gabriola;JazzText Extended;HelveticaNeue BlackExt;sans-serif;Textile;HelveticaNeue BlackExtObl fantasy;HelveticaNeue BoldCond;Palatino Linotype Bold;HelveticaNeue BoldCondObl;BIRTH OF A HERO;HelveticaNeue BoldExt;Bleeding Cowboys;HelveticaNeue BoldExtObl;ChopinScript;HelveticaNeue ExtBlackCond;LCD;HelveticaNeue ExtBlackCondObl;Myriad Web Pro Condensed;HelveticaNeue HeavyCond;Scriptina;HelveticaNeue HeavyCondObl;OpenSymbol;HelveticaNeue HeavyExt;Virtual DJ;HelveticaNeue HeavyExtObl;Guitar Pro 5;HelveticaNeue LightCondObl;Nueva Std;HelveticaNeue ThinCond;Chicago;HelveticaNeue ThinCondObl;Nueva Std Bold;Brush Script MT;Capitals;Myriad Web Pro;Avant Garde;B Avant Garde Demi;Nueva Std Bold Italic;BI Avant Garde DemiOblique;MaestroTimes;Univers BoldExtObl;APC Courier;Myriad Web Pro Bold;Liberation Serif;Myriad Pro Light;Carta;DIN-Bold;DIN-Light;Myriad Web Pro Condensed Italic;DIN-Medium;Tekton Pro Oblique;DIN-Regular;AScore;HelveticaNeue UltraLigCondObl;Opus;HelveticaNeue UltraLigExt;Myriad Pro Light It;HelveticaNeue UltraLigExtObl;Opus Chords Sans;HO Futura HeavyOblique;Opus Japanese Chords;L Frutiger Light;VT100;L Futura Light;Helsinki;LO Futura LightOblique;Helsinki Metronome;Myriad Pro Black;New York;O Futura BookOblique;R Frutiger Roman;Reprise;TradeGothic;Warnock Pro Bold Caption;Univers 45 Light;Warnock Pro;XBO Futura ExtraBoldOblique;Univers 45 LightOblique;Liberation Mono;Univers 55 Oblique;UC LCD;Univers 57 Condensed;Warnock Pro Bold;Univers ExtraBlack;Warnock Pro Light Ital Subhead;Univers LightUltraCondensed;Matrix Ticker;Univers UltraCondensed;Fang Song".split(";");
 
     return new Promise(function(resolve, reject){
-      document.addEventListener("DOMContentLoaded", function(event){
-        var baseFonts = ["monospace", "sans-serif", "serif"];
-        var testString = "mmmmmmmmmmlli";
-        var testSize = "72px";
-        var h = document.getElementsByTagName("body")[0];
+      function runFontsEnum(){
+            var baseFonts = ["monospace", "sans-serif", "serif"];
+            var testString = "mmmmmmmmmmlli";
+            var testSize = "72px";
+            var h = document.getElementsByTagName("body")[0];
 
-        // div to load spans for the base fonts
-        var baseFontsDiv = document.createElement("div");
+            // div to load spans for the base fonts
+            var baseFontsDiv = document.createElement("div");
 
-        // div to load spans for the fonts to detect
-        var fontsDiv = document.createElement("div");
+            // div to load spans for the fonts to detect
+            var fontsDiv = document.createElement("div");
 
-        var defaultWidth = {};
-        var defaultHeight = {};
+            var defaultWidth = {};
+            var defaultHeight = {};
 
-        // creates a span where the fonts will be loaded
-        var createSpan = function() {
-            var s = document.createElement("span");
-            /*
-            * We need this css as in some weird browser this
-            * span elements shows up for a microSec which creates a
-            * bad user experience
-            */
-            s.style.position = "absolute";
-            s.style.left = "-9999px";
-            s.style.fontSize = testSize;
-            s.style.lineHeight = "normal";
-            s.innerHTML = testString;
-            return s;
-        };
+            // creates a span where the fonts will be loaded
+            var createSpan = function() {
+                var s = document.createElement("span");
+                /*
+                * We need this css as in some weird browser this
+                * span elements shows up for a microSec which creates a
+                * bad user experience
+                */
+                s.style.position = "absolute";
+                s.style.left = "-9999px";
+                s.style.fontSize = testSize;
+                s.style.lineHeight = "normal";
+                s.innerHTML = testString;
+                return s;
+            };
 
-        var createSpanWithFonts = function(fontToDetect, baseFont) {
-            var s = createSpan();
-            s.style.fontFamily = "'" + fontToDetect + "'," + baseFont;
-            return s;
-        };
-
-        var initializeBaseFontsSpans = function() {
-            var spans = [];
-            for (var index = 0, length = baseFonts.length; index < length; index++) {
+            var createSpanWithFonts = function(fontToDetect, baseFont) {
                 var s = createSpan();
-                s.style.fontFamily = baseFonts[index];
-                baseFontsDiv.appendChild(s);
-                spans.push(s);
-            }
-            return spans;
-        };
+                s.style.fontFamily = "'" + fontToDetect + "'," + baseFont;
+                return s;
+            };
 
-        var initializeFontsSpans = function() {
-            var spans = {};
+            var initializeBaseFontsSpans = function() {
+                var spans = [];
+                for (var index = 0, length = baseFonts.length; index < length; index++) {
+                    var s = createSpan();
+                    s.style.fontFamily = baseFonts[index];
+                    baseFontsDiv.appendChild(s);
+                    spans.push(s);
+                }
+                return spans;
+            };
+
+            var initializeFontsSpans = function() {
+                var spans = {};
+                for(var i = 0, l = fontsToTest.length; i < l; i++) {
+                    var fontSpans = [];
+                    for(var j = 0, numDefaultFonts = baseFonts.length; j < numDefaultFonts; j++) {
+                        var s = createSpanWithFonts(fontsToTest[i], baseFonts[j]);
+                        fontsDiv.appendChild(s);
+                        fontSpans.push(s);
+                    }
+                    spans[fontsToTest[i]] = fontSpans; // Stores {fontName : [spans for that font]}
+                }
+                return spans;
+            };
+
+            var isFontAvailable = function(fontSpans) {
+                var detected = false;
+                for(var i = 0; i < baseFonts.length; i++) {
+                    detected = (fontSpans[i].offsetWidth !== defaultWidth[baseFonts[i]] || fontSpans[i].offsetHeight !== defaultHeight[baseFonts[i]]);
+                    if(detected) {
+                        return detected;
+                    }
+                }
+                return detected;
+            };
+
+            var baseFontsSpans = initializeBaseFontsSpans();
+
+            // add the spans to the DOM
+            h.appendChild(baseFontsDiv);
+
+            // get the default width for the three base fonts
+            for (var index = 0, length = baseFonts.length; index < length; index++) {
+                defaultWidth[baseFonts[index]] = baseFontsSpans[index].offsetWidth; // width for the default font
+                defaultHeight[baseFonts[index]] = baseFontsSpans[index].offsetHeight; // height for the default font
+            }
+
+            // create spans for fonts to detect
+            var fontsSpans = initializeFontsSpans();
+
+            // add all the spans to the DOM
+            h.appendChild(fontsDiv);
+
+            // check available fonts
+            var available = [];
             for(var i = 0, l = fontsToTest.length; i < l; i++) {
-                var fontSpans = [];
-                for(var j = 0, numDefaultFonts = baseFonts.length; j < numDefaultFonts; j++) {
-                    var s = createSpanWithFonts(fontsToTest[i], baseFonts[j]);
-                    fontsDiv.appendChild(s);
-                    fontSpans.push(s);
-                }
-                spans[fontsToTest[i]] = fontSpans; // Stores {fontName : [spans for that font]}
-            }
-            return spans;
-        };
-
-        var isFontAvailable = function(fontSpans) {
-            var detected = false;
-            for(var i = 0; i < baseFonts.length; i++) {
-                detected = (fontSpans[i].offsetWidth !== defaultWidth[baseFonts[i]] || fontSpans[i].offsetHeight !== defaultHeight[baseFonts[i]]);
-                if(detected) {
-                    return detected;
+                if(isFontAvailable(fontsSpans[fontsToTest[i]])) {
+                    available.push(fontsToTest[i]+"--true");
+                }else{
+                    available.push(fontsToTest[i]+"--false");
                 }
             }
-            return detected;
-        };
 
-        var baseFontsSpans = initializeBaseFontsSpans();
-
-        // add the spans to the DOM
-        h.appendChild(baseFontsDiv);
-
-        // get the default width for the three base fonts
-        for (var index = 0, length = baseFonts.length; index < length; index++) {
-            defaultWidth[baseFonts[index]] = baseFontsSpans[index].offsetWidth; // width for the default font
-            defaultHeight[baseFonts[index]] = baseFontsSpans[index].offsetHeight; // height for the default font
+            // remove spans from DOM
+            h.removeChild(fontsDiv);
+            h.removeChild(baseFontsDiv);
+            return resolve(available.join(";;"));
         }
 
-        // create spans for fonts to detect
-        var fontsSpans = initializeFontsSpans();
 
-        // add all the spans to the DOM
-        h.appendChild(fontsDiv);
-
-        // check available fonts
-        var available = [];
-        for(var i = 0, l = fontsToTest.length; i < l; i++) {
-            if(isFontAvailable(fontsSpans[fontsToTest[i]])) {
-                available.push(fontsToTest[i]+"--true");
-            }else{
-                available.push(fontsToTest[i]+"--false");
-            }
-        }
-
-        // remove spans from DOM
-        h.removeChild(fontsDiv);
-        h.removeChild(baseFontsDiv);
-        return resolve(available.join(";;"));
-      });
+      if(document.readyState == "complete"){
+        runFontsEnum();
+      }else {
+        document.addEventListener("DOMContentLoaded", function(event){
+          runFontsEnum();
+        });
+      }
     });
 }
 
@@ -1255,10 +1270,8 @@ function findGetParameter(parameterName) {
 
 osGet = findGetParameter("os");
   if(osGet != null){
-    setTimeout(function(){
-      console.log("launching collect ...");
+      function collectFP(){
         generateFingerprint().then(function(val){
-          console.log("test");
           console.log(val);
           var browser = findGetParameter("browser");
           var countermeasure = findGetParameter("countermeas");
@@ -1280,7 +1293,9 @@ osGet = findGetParameter("os");
           xmlhttp.setRequestHeader("Content-type", "application/json");
           xmlhttp.send(JSON.stringify(val));
       });
-    }, 2500);
+    }
+
+    setTimeout(collectFP, 2000);
 } else{
   generateFingerprint().then(function(val){
       console.log(val);
