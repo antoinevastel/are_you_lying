@@ -871,13 +871,13 @@ function testCanvasValue(imgData){
         !binarizedImg[i][j-1] && !binarizedImg[i][j+1] && !binarizedImg[i+1][j-1] && !binarizedImg[i+1][j] &&
         !binarizedImg[i+1][j+1]){
             //all cells are empty next to i,j
-            isolatedCells.push({x:i-1, y:j-1});
+            isolatedCells.push([i-1, j-1]);
         }
       }
     }
   }
 
-  return [nbZeroElts, isolatedCells].join(";;");
+  return [nbZeroElts, isolatedCells.join("~~")].join(";;");
 }
 
 function getFontsEnum(){
