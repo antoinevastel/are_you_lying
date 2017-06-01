@@ -1,3 +1,5 @@
+var ERROR = "error";
+
 function generateFingerprint(){
     var fp = {}
     return new Promise(function(resolve, reject){
@@ -295,7 +297,7 @@ function getOscpu(){
 	if(navigator.oscpu){
 		return navigator.oscpu;
 	}
-	return "unkwown";
+	return "unknown";
 }
 
 function getUserAgent(){
