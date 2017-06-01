@@ -22,7 +22,9 @@
         var os = findGetParameter("os");
         var browser = findGetParameter("browser");
         var countermeas = findGetParameter("countermeas");
-        window.location.href = "/?os="+os+"&browser="+browser+"&countermeas="+countermeas
+        setTimeout(function(){
+            window.location.href = "/?os="+os+"&browser="+browser+"&countermeas="+countermeas;
+        }, 2000);
     </script>
 </body>
 </html>
