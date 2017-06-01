@@ -1143,23 +1143,30 @@ function checkOSMq(osRef, versionRef){
 }
 
 function generateErrors(){
-    var errors = {};
+    var errors = [];
     try{
-        azeaze+3;
+        azeaze + 3;
     }catch(e){
-        errors["errorMessage"] = e.message;
-        errors["filename"] = e.fileName;
-        errors["lineNumber"] = e.lineNumber;
-        errors["errorDescription"] = e.description;
-        errors["errorNumber"] = e.number;
-        errors["columnNumber"] = e.columnNumber;
+        errors.push(e.message);
+        errors.push(e.fileName);
+        errors.push(e.lineNumber);
+        errors.push(e.description);
+        errors.push(e.number);
+        errors.push(e.columnNumber);
         try{
-            errors["columnNumber"] = e.toSource().toString();
+            errors.push(e.toSource().toString());
         }catch(e){
-            errors["columnNumber"] = undefined;
+            errors.push(undefined);
         }
-      }
-    return errors;
+    }
+
+    try{
+    var a = new WebSocket("itsgonnafail");
+  }catch(e){
+    errors.push(e.toString());
+  }
+
+    return errors.join("~~~");
 }
 
 function isMissingImageConsistent(unknownImageError, browserRef){
