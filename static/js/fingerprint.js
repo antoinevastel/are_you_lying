@@ -1256,7 +1256,9 @@ function findGetParameter(parameterName) {
 osGet = findGetParameter("os");
   if(osGet != null){
     setTimeout(function(){
+      console.log("launching collect ...");
         generateFingerprint().then(function(val){
+          console.log("test");
           console.log(val);
           var browser = findGetParameter("browser");
           var countermeasure = findGetParameter("countermeas");
@@ -1278,7 +1280,7 @@ osGet = findGetParameter("os");
           xmlhttp.setRequestHeader("Content-type", "application/json");
           xmlhttp.send(JSON.stringify(val));
       });
-    }, 2500)
+    }, 2500);
 } else{
   generateFingerprint().then(function(val){
       console.log(val);
