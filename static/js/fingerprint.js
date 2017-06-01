@@ -1240,72 +1240,76 @@ function getFingerprintInconsistencies(fp){
     areErrorsConsistent(browserRef);
 }
 
-generateFingerprint().then(function(val){
-		console.log(val);
-		var validateBtn = document.getElementById("validate");
+function findGetParameter(parameterName) {
+      var result = null,
+          tmp = [];
+      location.search
+      .substr(1)
+          .split("&")
+          .forEach(function (item) {
+          tmp = item.split("=");
+          if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+      });
+      return result;
+}
 
-    function findGetParameter(parameterName) {
-			var result = null,
-					tmp = [];
-			location.search
-			.substr(1)
-					.split("&")
-					.forEach(function (item) {
-					tmp = item.split("=");
-					if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
-			});
-			return result;
-		}
+osGet = findGetParameter("os");
+  if(osGet != null){
+    setTimeout(function(){
+        generateFingerprint().then(function(val){
+          console.log(val);
+          var browser = findGetParameter("browser");
+          var countermeasure = findGetParameter("countermeas");
+          var os = osGet;
 
-	osGet = findGetParameter("os");
-	if(osGet != null){
-		var browser = findGetParameter("browser");
-		var countermeasure = findGetParameter("countermeas");
-		var os = osGet;
+          url = "/add_fp"
+          var xmlhttp;
+          xmlhttp = new XMLHttpRequest();
+          xmlhttp.onreadystatechange = function(){
+              if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
+              }
+          }
+          val.countermeasure = countermeasure;
+          val.realBrowser = browser;
+          val.realOS = os;
+          val.automatedTest = true;
 
-		url = "/add_fp"
-		var xmlhttp;
-		xmlhttp = new XMLHttpRequest();
-		xmlhttp.onreadystatechange = function(){
-				if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
-				}
-		}
-		val.countermeasure = countermeasure;
-		val.realBrowser = browser;
-		val.realOS = os;
-		val.automatedTest = true;
+          xmlhttp.open("POST", url, true);
+          xmlhttp.setRequestHeader("Content-type", "application/json");
+          xmlhttp.send(JSON.stringify(val));
+      });
+    }, 2500)
+} else{
+  generateFingerprint().then(function(val){
+      console.log(val);
+  		var validateBtn = document.getElementById("validate");
 
-		xmlhttp.open("POST", url, true);
-		xmlhttp.setRequestHeader("Content-type", "application/json");
-		xmlhttp.send(JSON.stringify(val));
+    validateBtn.addEventListener("click", function(evt){
+  				var countermeasureElt = document.getElementById("countermeasure-select");
+  				var countermeasure = countermeasureElt.options[countermeasureElt.selectedIndex].value;
 
-	}
+  				var browserElt = document.getElementById("browser-select");
+  				var browser = browserElt.options[browserElt.selectedIndex].value;
 
-  validateBtn.addEventListener("click", function(evt){
-				var countermeasureElt = document.getElementById("countermeasure-select");
-				var countermeasure = countermeasureElt.options[countermeasureElt.selectedIndex].value;
+  				var osElt = document.getElementById("os-select");
+  				var os = osElt.options[osElt.selectedIndex].value;
 
-				var browserElt = document.getElementById("browser-select");
-				var browser = browserElt.options[browserElt.selectedIndex].value;
+  				url = "/add_fp"
+  				var xmlhttp;
+  				xmlhttp = new XMLHttpRequest();
+  				xmlhttp.onreadystatechange = function(){
+  						if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
+  						}
+  				}
+  				val.countermeasure = countermeasure;
+  				val.realBrowser = browser;
+  				val.realOS = os;
 
-				var osElt = document.getElementById("os-select");
-				var os = osElt.options[osElt.selectedIndex].value;
+  				xmlhttp.open("POST", url, true);
+  				xmlhttp.setRequestHeader("Content-type", "application/json");
+  				xmlhttp.send(JSON.stringify(val));
+  				validateBtn.parentElement.removeChild(validateBtn);
+  			});
 
-				url = "/add_fp"
-				var xmlhttp;
-				xmlhttp = new XMLHttpRequest();
-				xmlhttp.onreadystatechange = function(){
-						if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
-						}
-				}
-				val.countermeasure = countermeasure;
-				val.realBrowser = browser;
-				val.realOS = os;
-
-				xmlhttp.open("POST", url, true);
-				xmlhttp.setRequestHeader("Content-type", "application/json");
-				xmlhttp.send(JSON.stringify(val));
-				validateBtn.parentElement.removeChild(validateBtn);
-			});
-
-});
+  });
+}
