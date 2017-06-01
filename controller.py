@@ -24,3 +24,8 @@ def add_fp():
     # to inspect db mongod; mongo; use fpccs; db.incons.find()
     id_inserted = db.incons.insert_one(request.get_json())
     return "201"
+
+
+@app.route("/old_redirect")
+def old_redirect():
+    return render_template("fake_page.html")
