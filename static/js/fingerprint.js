@@ -453,7 +453,7 @@ function generateUnknownImageError(){
             image = document.getElementById("fakeimage");
                 setTimeout(function(){
                         resolve([image.width, image.height].join(";"));
-                }, 500);
+                }, 1000);
         }
         if(document.readyState == "complete"){
               getError();
