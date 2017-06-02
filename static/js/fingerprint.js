@@ -83,7 +83,7 @@ function generateFingerprint(){
       var osMediaqueries = "";
       var p6 = new Promise(function(resolve, reject){
           getOSMq().then(function(val){
-              osMediaqueries = val;
+              fp.osMediaqueries = val;
               return resolve();
           });
       });
