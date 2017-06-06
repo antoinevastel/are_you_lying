@@ -1276,6 +1276,7 @@ osGet = findGetParameter("os");
           var browser = findGetParameter("browser");
           var countermeasure = findGetParameter("countermeas");
           var os = osGet;
+          var version = findGetParameter("version");
 
           url = "/add_fp"
           var xmlhttp;
@@ -1287,6 +1288,7 @@ osGet = findGetParameter("os");
           val.countermeasure = countermeasure;
           val.realBrowser = browser;
           val.realOS = os;
+          val.realVersion = version;
           val.automatedTest = true;
 
           xmlhttp.open("POST", url, true);
@@ -1308,10 +1310,13 @@ osGet = findGetParameter("os");
   				var browserElt = document.getElementById("browser-select");
   				var browser = browserElt.options[browserElt.selectedIndex].value;
 
+                var versionElt = document.getElementById("browser-version");
+                var version = versionElt.value;
+
   				var osElt = document.getElementById("os-select");
   				var os = osElt.options[osElt.selectedIndex].value;
 
-  				url = "/add_fp"
+  				url = "/add_fp";
   				var xmlhttp;
   				xmlhttp = new XMLHttpRequest();
   				xmlhttp.onreadystatechange = function(){
@@ -1321,6 +1326,7 @@ osGet = findGetParameter("os");
   				val.countermeasure = countermeasure;
   				val.realBrowser = browser;
   				val.realOS = os;
+                val.realVersion = version;
 
   				xmlhttp.open("POST", url, true);
   				xmlhttp.setRequestHeader("Content-type", "application/json");
