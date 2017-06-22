@@ -815,13 +815,17 @@ function getHTTPHeaders(url){
 
 function testModernizr(){
   var propertiesVec = [];
-  var modernizrProperties = Object.getOwnPropertyNames(Modernizr);
-  modernizrProperties.forEach(function(prop){
-    if(typeof Modernizr[prop] == "boolean"){
-        propertiesVec.push(prop+"-"+Modernizr[prop].toString());
-    }
-  });
-  return propertiesVec.join(";");
+	try{
+		var modernizrProperties = Object.getOwnPropertyNames(Modernizr);
+		modernizrProperties.forEach(function(prop){
+			if(typeof Modernizr[prop] == "boolean"){
+				try{
+					propertiesVec.push(prop+"-"+Modernizr[prop].toString());
+				}catch(e){}
+			}
+		});
+		return propertiesVec.join(";");
+	}catch(e){return "";}
 }
 
 
