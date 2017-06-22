@@ -379,16 +379,20 @@ function getDoNotTrack() {
 }
 
 function getWebGL(){
-  canvas = document.createElement('canvas');
-  var ctx = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-  if(ctx.getSupportedExtensions().indexOf("WEBGL_debug_renderer_info") >= 0) {
-      webGLVendor = ctx.getParameter(ctx.getExtension('WEBGL_debug_renderer_info').UNMASKED_VENDOR_WEBGL);
-      webGLRenderer = ctx.getParameter(ctx.getExtension('WEBGL_debug_renderer_info').UNMASKED_RENDERER_WEBGL);
-  } else {
-      webGLVendor = "Not supported";
-      webGLRenderer = "Not supported";
-  }
-  return [webGLVendor, webGLRenderer].join(";;;");
+	try{
+		canvas = document.createElement('canvas');
+		var ctx = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+		if(ctx.getSupportedExtensions().indexOf("WEBGL_debug_renderer_info") >= 0) {
+				webGLVendor = ctx.getParameter(ctx.getExtension('WEBGL_debug_renderer_info').UNMASKED_VENDOR_WEBGL);
+				webGLRenderer = ctx.getParameter(ctx.getExtension('WEBGL_debug_renderer_info').UNMASKED_RENDERER_WEBGL);
+		} else {
+				webGLVendor = "Not supported";
+				webGLRenderer = "Not supported";
+		}
+		return [webGLVendor, webGLRenderer].join(";;;");
+	}catch(e){
+		return "unknown;;;unkown";
+	}
 }
 
 function getCanvasFp() {
@@ -408,7 +412,11 @@ function getCanvasFp() {
   canvasContext.fillText("Cwm fjordbank glyphs vext quiz, \ud83d\ude03", 4, 45);
   canvasData = canvas.toDataURL();
 
-  return {url: canvasData, data:canvasContext.getImageData(0, 0, canvas.width, canvas.height).data};
+	try{
+		return {url: canvasData, data:canvasContext.getImageData(0, 0, canvas.width, canvas.height).data};
+	}catch(e){
+		return {url: "", data: ""}
+	}
 }
 
 function getAdBlock(){
@@ -830,6 +838,10 @@ function testModernizr(){
 
 
 function testCanvasValue(imgData){
+	if(imgData == ""){
+		return "0;;"
+	}
+
   var r, g, b, a;
 
   var height = 60;
