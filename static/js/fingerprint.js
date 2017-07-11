@@ -43,6 +43,7 @@ function generateFingerprint(){
       fp.mathsConstants = getMathsConstants();
       fp.resOverflow = generateStackOverflow();
       fp.errorsGenerated = generateErrors();
+      fp.etsl = getEtsl();
 
       fp.languagesFonts = getLanguagesUsingFonts();
       var p1 = new Promise(function(resolve, reject){
@@ -210,6 +211,10 @@ function getVendor(){
 
 function getVendorSub(){
 	return navigator.vendorSub;
+}
+
+function getEtsl() {
+    return eval.toString().length;
 }
 
 function getTouchSupport(){
