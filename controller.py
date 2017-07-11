@@ -29,3 +29,13 @@ def add_fp():
 @app.route("/old_redirect")
 def old_redirect():
     return render_template("fake_page.html")
+
+@app.route("/measure_time")
+def measure_time():
+    return render_template("measure_time.html")
+
+@app.route("/save_time", methods=["POST"])
+def save_time():
+    print(request.get_json())
+    db.measure_time.insert_one(request.get_json())
+    return "201"
