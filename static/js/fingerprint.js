@@ -152,7 +152,7 @@ function getOSMq(){
     res.push(window.matchMedia("(-moz-os-version: windows-win8)").matches);
     res.push(window.matchMedia("(-moz-os-version: windows-win10)").matches);
 
-    return res;
+    return res.join(";");
 }
 
 
