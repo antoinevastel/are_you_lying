@@ -44,8 +44,9 @@ function generateFingerprint(){
       fp.resOverflow = generateStackOverflow();
       fp.errorsGenerated = generateErrors();
       fp.etsl = getEtsl();
+      fp.osMediaqueries = getOSMq();
+      fp.locale = getTzLocale();
 
-      fp.languagesFonts = getLanguagesUsingFonts();
       var p1 = new Promise(function(resolve, reject){
         getLocalIP().then(function(val){
           fp.localIP = val;
@@ -81,23 +82,36 @@ function generateFingerprint(){
         })
       });
 
-      var osMediaqueries = "";
-      var p6 = new Promise(function(resolve, reject){
-          getOSMq().then(function(val){
-              fp.osMediaqueries = val;
-              return resolve();
-          });
-      });
+      
 
       // TODO: add p1 later
       // Problem currently if no private address
-      return Promise.all([p2, p3, p4, p5, p6]).then(function () {
+      return Promise.all([p2, p3, p4, p5]).then(function () {
           return resolve(fp);
       });
 
   });
 	// this.generateNoNewKeywordError();
 	// Look at https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Promise/all
+}
+
+function getTzLocale() {
+    var d = new Date;
+    var skip = d.getTimezoneOffset();
+    d.setTime(0);
+    var val;
+    var value = 1E9;
+    var locale = value.toLocaleString ? value.toLocaleString() + d.toLocaleString() : "";
+    var ms = 0;
+    for (; ms < 1769390779860; ms += 864E5) {
+        d.setTime(ms);
+        val = d.getTimezoneOffset();
+        if (val !== skip) {
+            locale += "" + val + Math.round(ms / 1E3);
+            skip = val;
+        }
+    }
+    return locale;
 }
 
 function getNavigatorPrototype(){
@@ -128,73 +142,17 @@ function getNavigatorPrototype(){
 }
 
 function getOSMq(){
-    return new Promise(function(resolve, reject){
+    var queryMatchedColor = "red";
+    var res = [];
 
-        function runMQ(){
-            var divTest = document.createElement("div");
-            var body = document.getElementsByTagName("body")[0];
-            body.appendChild(divTest);
+    res.push(window.matchMedia("(-moz-mac-graphite-theme: 1)").matches);
+    res.push(window.matchMedia("(-moz-os-version: windows-xp)").matches);
+    res.push(window.matchMedia("(-moz-os-version: windows-vista)").matches);
+    res.push(window.matchMedia("(-moz-os-version: windows-win7)").matches);
+    res.push(window.matchMedia("(-moz-os-version: windows-win8)").matches);
+    res.push(window.matchMedia("(-moz-os-version: windows-win10)").matches);
 
-            var macP = document.createElement("p");
-            macP.setAttribute("id", "testmac1");
-            var winxpP = document.createElement("p");
-            winxpP.setAttribute("id", "testwinxp");
-            var winvisP = document.createElement("p");
-            winvisP.setAttribute("id", "testwinvis");
-            var win7P = document.createElement("p");
-            win7P.setAttribute("id", "testwin7");
-            var win8P = document.createElement("p");
-            win8P.setAttribute("id", "testwin8");
-
-            divTest.appendChild(macP);
-            divTest.appendChild(winxpP);
-            divTest.appendChild(winvisP);
-            divTest.appendChild(win7P);
-            divTest.appendChild(win8P);
-
-            var queryMatchedColor = "red";
-            var res = [];
-
-            if(macP.style.color == queryMatchedColor){
-                res.push("true");
-            }else{
-                res.push("false");
-            }
-
-            if(winxpP.style.color == queryMatchedColor){
-                res.push("true");
-            }else{
-                res.push("false");
-            }
-
-            if(winvisP.style.color == queryMatchedColor){
-                res.push("true");
-            }else{
-                res.push("false");
-            }
-
-            if(win7P.style.color == queryMatchedColor){
-                res.push("true");
-            }else{
-                res.push("false");
-            }
-
-            if(win8P.style.color == queryMatchedColor){
-                res.push("true");
-            }else{
-                res.push("false");
-            }
-            return res;
-      }
-
-      if(document.readyState == "complete"){
-            return resolve(runMQ().join(";"));
-      } else{
-        document.addEventListener("DOMContentLoaded", function(event){
-            return resolve(runMQ().join(";"));
-        });
-      }
-   });
+    return res;
 }
 
 
@@ -463,9 +421,12 @@ function generateUnknownImageError(){
             image.src = "http://iloveponeydotcom32188.jg";
             image.setAttribute("id", "fakeimage");
             body.appendChild(image);
+            image.onerror = function(){
+                 resolve([image.width, image.height].join(";"));
+            }
             image = document.getElementById("fakeimage");
                 setTimeout(function(){
-                        resolve([image.width, image.height].join(";"));
+                       
                 }, 1000);
         }
         if(document.readyState == "complete"){
@@ -1086,98 +1047,6 @@ function each(obj, iterator, context) {
 }
 
 
-function isPlatformOSrefConsistent(platform, osRef){
-    console.log("Test consistency of: "+platform+" and "+osRef);
-    var platformFamily;
-    if(platform.indexOf("Linux") > -1){
-        platformFamily = "Linux";
-    } else if(platform.indexOf("Windows") > -1){
-        platformFamily = "Windows";
-    } else if(platform.indexOf("Mac") > -1){
-        platformFamily = "Mac OS";
-    }
-
-    var platformFamilyToConsistentOs = {};
-    platformFamilyToConsistentOs["Linux"] = ["Linux", "Ubuntu"];
-    platformFamilyToConsistentOs["Windows"] = ["Windows"];
-    platformFamilyToConsistentOs["Mac OS"] = ["Mac OS"];
-    if(platformFamilyToConsistentOs[platformFamily].indexOf(osRef) > -1){
-        console.log("Platform and osRef are consistent");
-    } else{
-        console.log("Platform and osRef are not consistent");
-    }
-}
-
-function isPluginsOSrefConsistent(osRef, plugins){
-    console.log(plugins);
-    // also add windows phone
-    if((osRef == "Android" || osRef == "iOS") && plugins.length > 0){
-        console.log("Error: Mobile phone with plugins detected");
-    }
-
-    var forbiddenExtensions;
-    if(osRef == "Linux" || osRef == "Ubuntu"){
-        forbiddenExtensions = [".dll", ".plugin"];
-    } else if(osRef == "Mac OS"){
-        forbiddenExtensions = [".dll", ".so"];
-    } else if(osRef == "Windows"){
-        forbiddenExtensions = [".so", ".plugin"];
-    }
-
-    var found = false;
-    if(plugins.indexOf(forbiddenExtensions[0]) > -1){
-        found = true;
-    }
-    if(!found && plugins.indexOf(forbiddenExtensions[1]) > -1){
-        found = true;
-    }
-    if(found){
-        console.log("Error: plugins filename extension inconstent with osRef");
-    } else{
-        console.log("Plugins filename extension is consistent with osRef");
-    }
-}
-
-function checkOSMq(osRef, versionRef){
-    var queryMatchedColor = "red";
-    if(versionRef == undefined){
-        versionRef = " ";
-    }
-    var testMac1 = document.getElementById("testmac1");
-    var testWinXP = document.getElementById("testwinxp");
-    var testWinVis = document.getElementById("testwinvis");
-    var testWin7 = document.getElementById("testwin7");
-    var testWin8 = document.getElementById("testwin8");
-    testsFailed = [];
-
-    if(testMac1.style.color == queryMatchedColor && osRef != "Mac OS"){
-      testsFailed.push("testMac1");
-    }
-
-    if((testWinXP.style.color == queryMatchedColor && osRef+" "+versionRef != "Windows XP") ||
-        (testWinXP.style.color != queryMatchedColor && osRef+" "+versionRef == "Windows XP")){
-        testsFailed.push("testWinXp");
-    }
-
-    if((testWinVis.style.color == queryMatchedColor && osRef+" "+versionRef != "Windows Vista") ||
-        (testWinVis.style.color != queryMatchedColor && osRef+" "+versionRef == "Windows Vista")){
-        testsFailed.push("testWinVis");
-    }
-
-    if((testWin7.style.color == queryMatchedColor && osRef+" "+versionRef[0] != "Windows 7") ||
-        (testWin7.style.color != queryMatchedColor && osRef+" "+versionRef[0] == "Windows 7")){
-        testsFailed.push("testWin7");
-    }
-
-    if((testWin8.style.color == queryMatchedColor && osRef+" "+versionRef[0] != "Windows 8") ||
-        (testWin8.style.color != queryMatchedColor && osRef+" "+versionRef[0] == "Windows 8")){
-        testsFailed.push("testWin8");
-    }
-
-    console.log("tests failed");
-    console.log(testsFailed);
-}
-
 function generateErrors(){
     var errors = [];
     try{
@@ -1203,77 +1072,6 @@ function generateErrors(){
   }
 
     return errors.join("~~~");
-}
-
-function isMissingImageConsistent(unknownImageError, browserRef){
-    // Image size depends on the level of zoom...
-    var screenCssPixelRatio = (window.outerWidth - 8) / window.innerWidth;
-    if (screenCssPixelRatio >= .46 && screenCssPixelRatio <= .54) {
-      zoomLevel = "-4";
-    } else if (screenCssPixelRatio <= .64) {
-      zoomLevel = "-3";
-    } else if (screenCssPixelRatio <= .76) {
-      zoomLevel = "-2";
-    } else if (screenCssPixelRatio <= .92) {
-      zoomLevel = "-1";
-    } else if (screenCssPixelRatio <= 1.10) {
-      zoomLevel = "0";
-    } else if (screenCssPixelRatio <= 1.32) {
-      zoomLevel = "1";
-    } else if (screenCssPixelRatio <= 1.58) {
-      zoomLevel = "2";
-    } else if (screenCssPixelRatio <= 1.90) {
-      zoomLevel = "3";
-    } else if (screenCssPixelRatio <= 2.28) {
-      zoomLevel = "4";
-    } else if (screenCssPixelRatio <= 2.70) {
-      zoomLevel = "5";
-    } else {
-      zoomLevel = "unknown";
-    }
-    console.log("Zoom level: "+zoomLevel);
-  console.log(unknownImageError[0], unknownImageError[1]);
-  console.log(unknownImageError[0]*unknownImageError[1]/screenCssPixelRatio);
-    var browserToSize = {};
-    browserToSize["Chrome"] = [20, 25];
-}
-
-function areErrorsConsistent(browserRef){
-
-}
-
-function getFingerprintInconsistencies(fp){
-    // TODO apply my best algo here ...
-    console.log(fp);
-    console.log("Start finding inconsistencies");
-    var ua = fp.userAgent;
-    var parser = new UAParser();
-    // ua = "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko";
-    parser.setUA(ua);
-    var uaParsed = parser.getResult();
-    console.log(uaParsed);
-    var browserRef = uaParsed.browser.name;
-    var osRef = uaParsed.os.name;
-    var osVersionRef = uaParsed.os.version;
-    console.log("browser ref: "+browserRef);
-    console.log("os ref: "+osRef);
-    console.log("os version ref: "+osVersionRef);
-
-    // OS check
-    if(fp.userAgent == fp.httpHeaders["User-Agent"]){
-        console.log("The two user agents are the same");
-    }else{
-        console.log("The two user agents are different");
-    }
-
-    isPlatformOSrefConsistent(fp.platform, osRef);
-    isPluginsOSrefConsistent(osRef, fp.plugins);
-    checkOSMq(osRef, osVersionRef);
-    // TODO add emojis?
-    // add fonts linked to an os
-
-    // isMissingImageConsistent(fp.unknownImageError, browserRef);
-    areErrorsConsistent(browserRef);
 }
 
 function findGetParameter(parameterName) {
