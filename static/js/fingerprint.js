@@ -49,7 +49,11 @@ function generateFingerprint(){
 
       fp.accelerometedUsed = false;
       window.ondevicemotion = function(event) {
-          fp.accelerometedUsed = true;
+          if(event.accelerationIncludingGravity.x != null){
+            console.log("toto");
+            console.log(event.accelerationIncludingGravity.x);
+            fp.accelerometedUsed = true;
+          } 
       }
 
       var p1 = new Promise(function(resolve, reject){
