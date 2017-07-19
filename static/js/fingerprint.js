@@ -47,6 +47,11 @@ function generateFingerprint(){
       fp.osMediaqueries = getOSMq();
       fp.locale = getTzLocale();
 
+      fp.accelerometedUsed = false;
+      window.ondevicemotion = function(event) {
+          fp.accelerometedUsed = true;
+      }
+
       var p1 = new Promise(function(resolve, reject){
         getLocalIP().then(function(val){
           fp.localIP = val;
