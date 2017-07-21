@@ -47,7 +47,7 @@ function generateFingerprint(){
       fp.osMediaqueries = getOSMq();
       fp.locale = getTzLocale();
 
-      fp.accelerometedUsed = false;
+      fp.accelerometerUsed = false;
       window.ondevicemotion = function(event) {
           if(event.accelerationIncludingGravity.x != null){
             console.log("toto");
