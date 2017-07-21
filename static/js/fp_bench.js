@@ -16,7 +16,7 @@ function generateFingerprint(){
       fp.webGLInfo = getWebGL();
       fp.modernizr = testModernizr();
       fp.overwrittenObjects = testOverwrittenObjects();
-      fp.canvasPixels = testCanvasValue(canvasObj.data);
+    //   fp.canvasPixels = testCanvasValue(canvasObj.data);
 
       // New attributes
       fp.oscpu = getOscpu();
@@ -158,7 +158,7 @@ function getOSMq(){
             }else{
                 res.push("false");
             }
-            return res;
+            return res.join(";");
       }
 
       if(document.readyState == "complete"){

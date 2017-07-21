@@ -23,7 +23,7 @@ function generateFingerprint(){
       fp.webGLInfo = getWebGL();
       fp.modernizr = testModernizr();
       fp.overwrittenObjects = testOverwrittenObjects();
-      fp.canvasPixels = testCanvasValue(canvasObj.data);
+    //   fp.canvasPixels = testCanvasValue(canvasObj.data);
 
       // New attributes
       fp.appCodeName = getAppCodeName();
