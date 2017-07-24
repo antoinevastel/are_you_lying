@@ -33,6 +33,16 @@ function generateFingerprint(){
       fp.resOverflow = generateStackOverflow();
       fp.errorsGenerated = generateErrors();
       fp.etsl = getEtsl();
+      fp.osMediaqueries = getOSMq();
+
+      fp.accelerometerUsed = false;
+      window.ondevicemotion = function(event) {
+          if(event.accelerationIncludingGravity.x != null){
+            console.log("toto");
+            console.log(event.accelerationIncludingGravity.x);
+            fp.accelerometedUsed = true;
+          } 
+      }
 
       var p2 = new Promise(function(resolve, reject){
           getHTTPHeaders("/headers").then(function(val){
@@ -55,17 +65,9 @@ function generateFingerprint(){
         })
       });
 
-      var osMediaqueries = "";
-      var p6 = new Promise(function(resolve, reject){
-          getOSMq().then(function(val){
-              fp.osMediaqueries = val;
-              return resolve();
-          });
-      });
-
       // TODO: add p1 later
       // Problem currently if no private address
-      return Promise.all([p2, p4, p5, p6]).then(function () {
+      return Promise.all([p2, p4, p5]).then(function () {
           return resolve(fp);
       });
 
@@ -102,75 +104,18 @@ function getNavigatorPrototype(){
 }
 
 function getOSMq(){
-    return new Promise(function(resolve, reject){
+    var queryMatchedColor = "red";
+    var res = [];
 
-        function runMQ(){
-            var divTest = document.createElement("div");
-            var body = document.getElementsByTagName("body")[0];
-            body.appendChild(divTest);
+    res.push(window.matchMedia("(-moz-mac-graphite-theme: 1)").matches);
+    res.push(window.matchMedia("(-moz-os-version: windows-xp)").matches);
+    res.push(window.matchMedia("(-moz-os-version: windows-vista)").matches);
+    res.push(window.matchMedia("(-moz-os-version: windows-win7)").matches);
+    res.push(window.matchMedia("(-moz-os-version: windows-win8)").matches);
+    res.push(window.matchMedia("(-moz-os-version: windows-win10)").matches);
 
-            var macP = document.createElement("p");
-            macP.setAttribute("id", "testmac1");
-            var winxpP = document.createElement("p");
-            winxpP.setAttribute("id", "testwinxp");
-            var winvisP = document.createElement("p");
-            winvisP.setAttribute("id", "testwinvis");
-            var win7P = document.createElement("p");
-            win7P.setAttribute("id", "testwin7");
-            var win8P = document.createElement("p");
-            win8P.setAttribute("id", "testwin8");
-
-            divTest.appendChild(macP);
-            divTest.appendChild(winxpP);
-            divTest.appendChild(winvisP);
-            divTest.appendChild(win7P);
-            divTest.appendChild(win8P);
-
-            var queryMatchedColor = "red";
-            var res = [];
-
-            if(macP.style.color == queryMatchedColor){
-                res.push("true");
-            }else{
-                res.push("false");
-            }
-
-            if(winxpP.style.color == queryMatchedColor){
-                res.push("true");
-            }else{
-                res.push("false");
-            }
-
-            if(winvisP.style.color == queryMatchedColor){
-                res.push("true");
-            }else{
-                res.push("false");
-            }
-
-            if(win7P.style.color == queryMatchedColor){
-                res.push("true");
-            }else{
-                res.push("false");
-            }
-
-            if(win8P.style.color == queryMatchedColor){
-                res.push("true");
-            }else{
-                res.push("false");
-            }
-            return res.join(";");
-      }
-
-      if(document.readyState == "complete"){
-            return resolve(runMQ().join(";"));
-      } else{
-        document.addEventListener("DOMContentLoaded", function(event){
-            return resolve(runMQ().join(";"));
-        });
-      }
-   });
+    return res.join(";");
 }
-
 
 function getBuildId(){
 	if(navigator.buildID){
