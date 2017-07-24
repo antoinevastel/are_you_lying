@@ -44,13 +44,6 @@ function generateFingerprint(){
           } 
       }
 
-      var p2 = new Promise(function(resolve, reject){
-          getHTTPHeaders("/headers").then(function(val){
-            fp.httpHeaders = val;
-            return resolve(fp);
-        });
-      });
-
       var p4 = new Promise(function(resolve, reject){
           generateUnknownImageError().then(function(val){
               fp.unknownImageError = val;
@@ -67,7 +60,7 @@ function generateFingerprint(){
 
       // TODO: add p1 later
       // Problem currently if no private address
-      return Promise.all([p2, p4, p5]).then(function () {
+      return Promise.all([p4, p5]).then(function () {
           return resolve(fp);
       });
 
