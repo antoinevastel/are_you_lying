@@ -49,6 +49,7 @@ function generateFingerprint(){
 
       fp.accelerometerUsed = false;
       window.ondevicemotion = function(event) {
+          alert("test");
           if(event.accelerationIncludingGravity.x != null){
             console.log("toto");
             console.log(event.accelerationIncludingGravity.x);
