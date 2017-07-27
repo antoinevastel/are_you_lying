@@ -1,5 +1,4 @@
 var ERROR = "error";
-
 function generateFingerprint(){
     var fp = {}
     return new Promise(function(resolve, reject){
@@ -58,9 +57,7 @@ function generateFingerprint(){
     //   }
       if(window.DeviceMotionEvent) {
         window.ondevicemotion = function(e) {
-            fp.test1 = "test1";
             if(e.accelerationIncludingGravity.x != null){
-                fp.test2 = "test2";
                 fp.accelerometerUsed = true;
             }
         }
@@ -1137,6 +1134,7 @@ osGet = findGetParameter("os");
 
     setTimeout(collectFP, 2000);
 } else{
+  setTimeout(function(){
   generateFingerprint().then(function(val){
       console.log(val);
   		var validateBtn = document.getElementById("validate");
@@ -1173,4 +1171,5 @@ osGet = findGetParameter("os");
   			});
 
   });
+  }, 3000);
 }
