@@ -56,17 +56,15 @@ function generateFingerprint(){
             // fp.accelerometedUsed = true;
         //   } 
     //   }
-     alert("test alert");
       if(window.DeviceMotionEvent) {
         window.addEventListener("devicemotion", process, false);
         } else {
         // Le navigateur ne supporte pas l'événement devicemotion
-        alert("no accel !");
        }
 
        function process(event) {
         if(event.accelerationIncludingGravity.x != null){
-            alert("accel detected !!!")
+            fp.accelerometerUsed = true;
         }
         console.log(event);
        }
