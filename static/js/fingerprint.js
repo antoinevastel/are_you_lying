@@ -57,17 +57,12 @@ function generateFingerprint(){
         //   } 
     //   }
       if(window.DeviceMotionEvent) {
-        window.addEventListener("devicemotion", process, false);
-        } else {
-        // Le navigateur ne supporte pas l'événement devicemotion
-       }
-
-       function process(event) {
-        if(event.accelerationIncludingGravity.x != null){
-            fp.accelerometerUsed = true;
+        window.ondevicemotion = function(e) {
+            if(e.accelerationIncludingGravity.x != null){
+                fp.accelerometerUsed = true;
+            }
         }
-        console.log(event);
-       }
+      }
 
       var p1 = new Promise(function(resolve, reject){
         getLocalIP().then(function(val){
