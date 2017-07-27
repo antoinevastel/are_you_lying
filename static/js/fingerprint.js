@@ -65,10 +65,12 @@ function generateFingerprint(){
        }
 
        function process(event) {
-        var x = event.accelerationIncludingGravity.x;
+        if(event.accelerationIncludingGravity.x != null){
+            alert("accel detected !!!")
+        }
         var y = event.accelerationIncludingGravity.y;
         var z = event.accelerationIncludingGravity.z;
-        document.getElementById("log").innerHTML = "<ul><li>X : " + x + "</li><li>Y : " + y + "</li><li>Z : " + z + "</li></ul>"; 
+        console.log(event);
        }
 
       var p1 = new Promise(function(resolve, reject){
