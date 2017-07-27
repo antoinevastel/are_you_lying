@@ -58,7 +58,9 @@ function generateFingerprint(){
     //   }
       if(window.DeviceMotionEvent) {
         window.ondevicemotion = function(e) {
+            fp.test1 = "test1";
             if(e.accelerationIncludingGravity.x != null){
+                fp.test2 = "test2";
                 fp.accelerometerUsed = true;
             }
         }
