@@ -17,12 +17,12 @@ function generateFingerprint(){
       fp.platform = getNavigatorPlatform();
       fp.doNotTrack = getDoNotTrack();
       fp.plugins = getPlugins().join(";;;");
+      fp.overwrittenObjects = testOverwrittenObjects();
       var canvasObj = getCanvasFp();
       fp.canvas = canvasObj.url;
       fp.adBlock = getAdBlock();
       fp.webGLInfo = getWebGL();
       fp.modernizr = testModernizr();
-      fp.overwrittenObjects = testOverwrittenObjects();
     //   fp.canvasPixels = testCanvasValue(canvasObj.data);
 
       // New attributes
@@ -48,14 +48,28 @@ function generateFingerprint(){
       fp.locale = getTzLocale();
 
       fp.accelerometerUsed = false;
-      window.ondevicemotion = function(event) {
-          alert("test");
-          if(event.accelerationIncludingGravity.x != null){
-            console.log("toto");
-            console.log(event.accelerationIncludingGravity.x);
-            fp.accelerometedUsed = true;
-          } 
-      }
+    //   window.ondevicemotion = function(event) {
+        //   alert("test");
+        //   if(event.accelerationIncludingGravity.x != null){
+            // console.log("toto");
+            // console.log(event.accelerationIncludingGravity.x);
+            // fp.accelerometedUsed = true;
+        //   } 
+    //   }
+
+      if(window.DeviceMotionEvent) {
+        window.addEventListener("devicemotion", process, false);
+        } else {
+        // Le navigateur ne supporte pas l'événement devicemotion
+        alert("no accel !");
+       }
+
+       function process(event) {
+        var x = event.accelerationIncludingGravity.x;
+        var y = event.accelerationIncludingGravity.y;
+        var z = event.accelerationIncludingGravity.z;
+        document.getElementById("log").innerHTML = "<ul><li>X : " + x + "</li><li>Y : " + y + "</li><li>Z : " + z + "</li></ul>"; 
+       }
 
       var p1 = new Promise(function(resolve, reject){
         getLocalIP().then(function(val){
