@@ -56,7 +56,7 @@ function generateFingerprint(){
             // fp.accelerometedUsed = true;
         //   } 
     //   }
-
+     alert("test alert");
       if(window.DeviceMotionEvent) {
         window.addEventListener("devicemotion", process, false);
         } else {
