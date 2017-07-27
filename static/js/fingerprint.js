@@ -68,8 +68,6 @@ function generateFingerprint(){
         if(event.accelerationIncludingGravity.x != null){
             alert("accel detected !!!")
         }
-        var y = event.accelerationIncludingGravity.y;
-        var z = event.accelerationIncludingGravity.z;
         console.log(event);
        }
 
