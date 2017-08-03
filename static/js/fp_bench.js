@@ -9,34 +9,34 @@ function generateFingerprint(){
               return resolve(fp);
           });
       });
-    //   fp.userAgent = getUserAgent();
-    //   fp.screenResolution = getScreenResolution();
-    //   fp.availableScreenResolution = getAvailableScreenResolution();
-    //   fp.platform = getNavigatorPlatform();
-    //   fp.plugins = getPlugins().join(";;;");
+      fp.userAgent = getUserAgent();
+      fp.screenResolution = getScreenResolution();
+      fp.availableScreenResolution = getAvailableScreenResolution();
+      fp.platform = getNavigatorPlatform();
+      fp.plugins = getPlugins().join(";;;");
       fp.canvas = getCanvasFp();
-    //   fp.webGLInfo = getWebGL();
+      fp.webGLInfo = getWebGL();
       fp.modernizr = testModernizr();
-    //   fp.overwrittenObjects = testOverwrittenObjects();
+      fp.overwrittenObjects = testOverwrittenObjects();
 
       // New attributes
-    //   fp.oscpu = getOscpu();
-    //   fp.productSub = getProductSub();
-    //   fp.touchSupport = getTouchSupport();
-    //   fp.navigatorPrototype = getNavigatorPrototype();
-    //   fp.resOverflow = generateStackOverflow();
-    //   fp.errorsGenerated = generateErrors();
-    //   fp.etsl = getEtsl();
-    //   fp.osMediaqueries = getOSMq();
+      fp.oscpu = getOscpu();
+      fp.productSub = getProductSub();
+      fp.touchSupport = getTouchSupport();
+      fp.navigatorPrototype = getNavigatorPrototype();
+      fp.resOverflow = generateStackOverflow();
+      fp.errorsGenerated = generateErrors();
+      fp.etsl = getEtsl();
+      fp.osMediaqueries = getOSMq();
 
       fp.accelerometerUsed = false;
-    //   window.ondevicemotion = function(event) {
-        //   if(event.accelerationIncludingGravity.x != null){
-            // console.log("toto");
-            // console.log(event.accelerationIncludingGravity.x);
-            // fp.accelerometedUsed = true;
-        //   } 
-    //   }
+      window.ondevicemotion = function(event) {
+          if(event.accelerationIncludingGravity.x != null){
+            console.log("toto");
+            console.log(event.accelerationIncludingGravity.x);
+            fp.accelerometedUsed = true;
+          } 
+      }
 
       
 
@@ -726,7 +726,7 @@ generateFingerprint().then(function(val){
         }
     }
 
-    var res = {elapsedTimed: elapsedTimed, test:"bigatt"};
+    var res = {elapsedTimed: elapsedTimed, test:"att1"};
     xmlhttp.open("POST", url, true);
     xmlhttp.setRequestHeader("Content-type", "application/json");
     xmlhttp.send(JSON.stringify(res));
