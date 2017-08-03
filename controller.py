@@ -39,3 +39,13 @@ def save_time():
     print(request.get_json())
     db.measure_time.insert_one(request.get_json())
     return "201"
+
+@app.route("/measure_time_fp")
+def measure_time_fp():
+    return render_template("measure_time_fp.html")
+
+@app.route("/save_time_fp", methods=["POST"])
+def save_time_fp():
+    print(request.get_json())
+    db.measure_time_fp.insert_one(request.get_json())
+    return "201"
