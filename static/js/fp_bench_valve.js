@@ -1293,8 +1293,6 @@ new Fingerprint2().get(function(result, components){
   console.log(components); // an array of FP components
     var finished = performance.now();
     var elapsedTimed = finished - start;
-    console.log(elapsedTimed);
-    console.log(val);
 
     url = "/save_time_fp";
     var xmlhttp;
