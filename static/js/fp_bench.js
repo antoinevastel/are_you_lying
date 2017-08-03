@@ -3,32 +3,26 @@ var ERROR = "error";
 function generateFingerprint(){
     var fp = {}
     return new Promise(function(resolve, reject){
+       var p4 = new Promise(function(resolve, reject){
+          generateUnknownImageError().then(function(val){
+              fp.unknownImageError = val;
+              return resolve(fp);
+          });
+      });
       fp.userAgent = getUserAgent();
-      fp.hardwareConcurrency = getHardwareConcurrency();
       fp.screenResolution = getScreenResolution();
       fp.availableScreenResolution = getAvailableScreenResolution();
-      fp.timezone = getTimezone();
-      fp.cpuClass = getNavigatorCpuClass();
       fp.platform = getNavigatorPlatform();
       fp.plugins = getPlugins().join(";;;");
-      var canvasObj = getCanvasFp();
-      fp.canvas = canvasObj.url;
+      fp.canvas = getCanvasFp();
       fp.webGLInfo = getWebGL();
       fp.modernizr = testModernizr();
       fp.overwrittenObjects = testOverwrittenObjects();
-    //   fp.canvasPixels = testCanvasValue(canvasObj.data);
 
       // New attributes
       fp.oscpu = getOscpu();
-      fp.languages = getLanguages();
-      fp.mimeTypes = getMimeTypes();
-      fp.pluginsUsingMimeTypes = getPluginsUsingMimeTypes();
-      fp.product = getProduct();
       fp.productSub = getProductSub();
-      fp.vendor = getVendor();
-      fp.vendorSub = getVendorSub();
       fp.touchSupport = getTouchSupport();
-      fp.buildID = getBuildId();
       fp.navigatorPrototype = getNavigatorPrototype();
       fp.resOverflow = generateStackOverflow();
       fp.errorsGenerated = generateErrors();
@@ -44,12 +38,7 @@ function generateFingerprint(){
           } 
       }
 
-      var p4 = new Promise(function(resolve, reject){
-          generateUnknownImageError().then(function(val){
-              fp.unknownImageError = val;
-              return resolve(fp);
-          });
-      });
+      
 
       var p5 = new Promise(function(resolve, reject){
         getFontsEnum().then(function(val){
@@ -328,12 +317,7 @@ function getCanvasFp() {
   canvasContext.font = "18pt Arial";
   canvasContext.fillText("Cwm fjordbank glyphs vext quiz, \ud83d\ude03", 4, 45);
   canvasData = canvas.toDataURL();
-
-	try{
-		return {url: canvasData, data:canvasContext.getImageData(0, 0, canvas.width, canvas.height).data};
-	}catch(e){
-		return {url: "", data: ""}
-	}
+  return canvasData;
 }
 
 function getAdBlock(){
@@ -726,6 +710,7 @@ function generateErrors(){
     return errors.join("~~~");
 }
 
+setTimeout(function(){
 var start = performance.now();
 generateFingerprint().then(function(val){
     var finished = performance.now();
@@ -746,3 +731,4 @@ generateFingerprint().then(function(val){
     xmlhttp.setRequestHeader("Content-type", "application/json");
     xmlhttp.send(JSON.stringify(res));
 });
+}, 1000);
