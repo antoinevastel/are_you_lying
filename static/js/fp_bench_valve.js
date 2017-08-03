@@ -1287,6 +1287,8 @@
   return Fingerprint2;
 });
 
+
+setTimeout(function(){
 var start = performance.now();
 new Fingerprint2().get(function(result, components){
   console.log(result); //a hash, representing your device fingerprint
@@ -1307,3 +1309,4 @@ new Fingerprint2().get(function(result, components){
     xmlhttp.setRequestHeader("Content-type", "application/json");
     xmlhttp.send(JSON.stringify(res));
 });
+}, 1000);
