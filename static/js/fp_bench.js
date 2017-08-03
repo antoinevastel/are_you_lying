@@ -3,55 +3,55 @@ var ERROR = "error";
 function generateFingerprint(){
     var fp = {}
     return new Promise(function(resolve, reject){
-    //    var p4 = new Promise(function(resolve, reject){
-        //   generateUnknownImageError().then(function(val){
-            //   fp.unknownImageError = val;
-            //   return resolve(fp);
-        //   });
-    //   });
-      fp.userAgent = getUserAgent();
-      fp.screenResolution = getScreenResolution();
-      fp.availableScreenResolution = getAvailableScreenResolution();
-      fp.platform = getNavigatorPlatform();
-      fp.plugins = getPlugins().join(";;;");
-    //   fp.canvas = getCanvasFp();
-      fp.webGLInfo = getWebGL();
-    //   fp.modernizr = testModernizr();
-      fp.overwrittenObjects = testOverwrittenObjects();
+       var p4 = new Promise(function(resolve, reject){
+          generateUnknownImageError().then(function(val){
+              fp.unknownImageError = val;
+              return resolve(fp);
+          });
+      });
+    //   fp.userAgent = getUserAgent();
+    //   fp.screenResolution = getScreenResolution();
+    //   fp.availableScreenResolution = getAvailableScreenResolution();
+    //   fp.platform = getNavigatorPlatform();
+    //   fp.plugins = getPlugins().join(";;;");
+      fp.canvas = getCanvasFp();
+    //   fp.webGLInfo = getWebGL();
+      fp.modernizr = testModernizr();
+    //   fp.overwrittenObjects = testOverwrittenObjects();
 
       // New attributes
-      fp.oscpu = getOscpu();
-      fp.productSub = getProductSub();
-      fp.touchSupport = getTouchSupport();
-      fp.navigatorPrototype = getNavigatorPrototype();
-      fp.resOverflow = generateStackOverflow();
-      fp.errorsGenerated = generateErrors();
-      fp.etsl = getEtsl();
-      fp.osMediaqueries = getOSMq();
+    //   fp.oscpu = getOscpu();
+    //   fp.productSub = getProductSub();
+    //   fp.touchSupport = getTouchSupport();
+    //   fp.navigatorPrototype = getNavigatorPrototype();
+    //   fp.resOverflow = generateStackOverflow();
+    //   fp.errorsGenerated = generateErrors();
+    //   fp.etsl = getEtsl();
+    //   fp.osMediaqueries = getOSMq();
 
       fp.accelerometerUsed = false;
-      window.ondevicemotion = function(event) {
-          if(event.accelerationIncludingGravity.x != null){
-            console.log("toto");
-            console.log(event.accelerationIncludingGravity.x);
-            fp.accelerometedUsed = true;
-          } 
-      }
+    //   window.ondevicemotion = function(event) {
+        //   if(event.accelerationIncludingGravity.x != null){
+            // console.log("toto");
+            // console.log(event.accelerationIncludingGravity.x);
+            // fp.accelerometedUsed = true;
+        //   } 
+    //   }
 
       
 
-    //   var p5 = new Promise(function(resolve, reject){
-        // getFontsEnum().then(function(val){
-            // fp.fontsEnum = val;
-            // return resolve(fp);
-        // })
-    //   });
+      var p5 = new Promise(function(resolve, reject){
+        getFontsEnum().then(function(val){
+            fp.fontsEnum = val;
+            return resolve(fp);
+        })
+      });
 
       // TODO: add p1 later
       // Problem currently if no private address
-    //   return Promise.all([p4, /*p5*/]).then(function () {
-        //   return resolve(fp);
-    //   });
+      return Promise.all([p4, p5]).then(function () {
+          return resolve(fp);
+      });
 
   });
 	// this.generateNoNewKeywordError();
@@ -726,7 +726,7 @@ generateFingerprint().then(function(val){
         }
     }
 
-    var res = {elapsedTimed: elapsedTimed, test:"attonly"};
+    var res = {elapsedTimed: elapsedTimed, test:"bigatt"};
     xmlhttp.open("POST", url, true);
     xmlhttp.setRequestHeader("Content-type", "application/json");
     xmlhttp.send(JSON.stringify(res));
