@@ -43,7 +43,7 @@ function generateFingerprint(){
     //   var p5 = new Promise(function(resolve, reject){
         // getFontsEnum().then(function(val){
             // fp.fontsEnum = val;
-            // return resolve(fp);
+            return resolve(fp);
         // })
     //   });
 
